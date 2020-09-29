@@ -11,7 +11,7 @@ class ValidationConfiguration<
   ValidationConfiguration._(
       this.defaultValidationMessages, this._typeConverter);
 
-  factory ValidationConfiguration(
+  factory ValidationConfiguration.initialize(
       DefaultValidationMessagesType defaultValidationMessages,
       {List<TypeConverter> typeConverter = const []}) {
     return _instance = ValidationConfiguration<DefaultValidationMessagesType>._(

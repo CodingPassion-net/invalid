@@ -10,7 +10,7 @@ Matcher resultHasMessage(String message) => isA<ValidationResult<FormKeys>>()
     .having((result) => result.message, "", message);
 
 void main() {
-  ValidationConfiguration<EmptyDefaultValidationMessages>(
+  ValidationConfiguration<EmptyDefaultValidationMessages>.initialize(
       EmptyDefaultValidationMessages());
 
   group('FormValidationBloc', () {
@@ -203,7 +203,7 @@ void main() {
     group('Validators', () {
       test('Validator allowNull should also be applied if using typeconverter',
           () {
-        ValidationConfiguration<EmptyDefaultValidationMessages>(
+        ValidationConfiguration<EmptyDefaultValidationMessages>.initialize(
             EmptyDefaultValidationMessages(),
             typeConverter: [
               DummyForTypeConverterReturnsNullToDoubleTypeConverter()
@@ -223,7 +223,7 @@ void main() {
                 ShouldNotBeNullValidator<dynamic, FormKeys>(), "Hallo", true),
             throwsA(isA<UnsupportedError>()));
 
-        ValidationConfiguration<EmptyDefaultValidationMessages>(
+        ValidationConfiguration<EmptyDefaultValidationMessages>.initialize(
             EmptyDefaultValidationMessages(),
             typeConverter: [
               DummyForTypeConverterReturnsNullToStringTypeConverter()
