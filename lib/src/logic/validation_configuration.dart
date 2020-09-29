@@ -14,7 +14,8 @@ class ValidationConfiguration<
   factory ValidationConfiguration(
       DefaultValidationMessagesType defaultValidationMessages,
       {List<TypeConverter> typeConverter = const []}) {
-    return _instance = ValidationConfiguration._(defaultValidationMessages, [
+    return _instance = ValidationConfiguration<DefaultValidationMessagesType>._(
+        defaultValidationMessages, [
       StringDoubleTypeConverter(),
       IntDoubleTypeConverter(),
       ...typeConverter
