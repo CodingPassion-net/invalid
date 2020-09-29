@@ -25,7 +25,7 @@ void main() {
               parentFormValidationBloc: parentFormValidationBloc);
         },
         wait: Duration(milliseconds: 50),
-        act: (_) async => parentFormValidationBloc.add(EnableValidationEvent()),
+        act: (_) async => parentFormValidationBloc.enableValidation(),
         expect: [FormValidation(enabled: true)]);
   });
 

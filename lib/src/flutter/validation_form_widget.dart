@@ -72,8 +72,8 @@ FormValidationBloc<KeyType> addFieldAndGetForm<KeyType>(
   if (key == null) return null;
   var formValidationBloc =
       BlocProvider.of<FormValidationBloc<KeyType>>(context);
-  formValidationBloc.add(AddFieldEvent(
-      Field<KeyType>(key: key, validators: validators, fieldName: fieldName)));
+  formValidationBloc.addField(
+      Field<KeyType>(key: key, validators: validators, fieldName: fieldName));
   return formValidationBloc;
 }
 
@@ -100,7 +100,7 @@ class ValidationCapability<KeyType> {
     if (_formValidationBloc == null) {
       throw UninitializedException<KeyType>();
     }
-    _formValidationBloc.add(UpdateFieldEvent<KeyType>(validationKey, newVal));
+    _formValidationBloc.updateField(validationKey, newVal);
   }
 
   ValidationCapability<KeyType> copyWith(

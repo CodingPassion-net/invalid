@@ -4,58 +4,27 @@ import 'package:equatable/equatable.dart';
 import 'type_converter.dart';
 import 'validators.dart';
 
-class FormValidationBloc<KeyType>
-    extends Bloc<FormValidationEvent, FormValidation<KeyType>> {
+class FormValidationBloc<KeyType> extends Cubit<FormValidation<KeyType>> {
   FormValidationBloc(FormValidation initialState,
       {FormValidationBloc parentFormValidationBloc})
       : super(initialState) {
     if (parentFormValidationBloc != null) {
       parentFormValidationBloc.listen((parentFormValidationState) {
         if (parentFormValidationState.enabled) {
-          add(EnableValidationEvent());
+          enableValidation();
         }
       });
     }
   }
 
-  @override
-  Stream<FormValidation<KeyType>> mapEventToState(
-    FormValidationEvent event,
-  ) async* {
-    if (event is UpdateFieldEvent<KeyType>) {
-      yield* _updateField(event);
-    }
-    if (event is AddFieldEvent<KeyType>) {
-      yield* _addField(event);
-    }
-    if (event is EnableValidationEvent) {
-      yield* _enableValidation(event);
-    }
-    if (event is DisableValidationEvent) {
-      yield* _disableValidation(event);
-    }
-  }
+  void updateField(KeyType fieldKey, dynamic newValue) =>
+      emit(state.updateField(fieldKey, newValue));
 
-  Stream<FormValidation<KeyType>> _updateField(
-      UpdateFieldEvent<KeyType> event) async* {
-    yield state.updateField(event.fieldKey, event.newValue);
-  }
+  void addField(Field<KeyType> field) => emit(state.addField(field));
 
-  Stream<FormValidation<KeyType>> _addField(
-      AddFieldEvent<KeyType> event) async* {
-    var newS = state.addField(event.newField);
-    yield newS;
-  }
+  void enableValidation() => emit(state.copyWith(enabled: true));
 
-  Stream<FormValidation<KeyType>> _enableValidation(
-      EnableValidationEvent event) async* {
-    yield state.copyWith(enabled: true);
-  }
-
-  Stream<FormValidation<KeyType>> _disableValidation(
-      DisableValidationEvent event) async* {
-    yield state.copyWith(enabled: false);
-  }
+  void disableValidation() => emit(state.copyWith(enabled: false));
 }
 
 class FormValidationEvent {}
