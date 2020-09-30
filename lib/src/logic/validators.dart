@@ -298,8 +298,10 @@ class ShouldInBetweenDatesValidator<KeyType> extends FieldValidator<DateTime,
   final DateTime max;
   final DateTime min;
 
-  ShouldInBetweenDatesValidator(this.min, this.max,
-      {String Function(
+  ShouldInBetweenDatesValidator(
+      {@required this.min,
+      @required this.max,
+      String Function(
               ShouldInBetweenDatesValidator<KeyType> validator, Field field)
           buildErrorMessage,
       KeyType key})
@@ -320,8 +322,8 @@ class ShouldBeBiggerThanValidator<KeyType> extends FieldValidator<double,
     KeyType, ShouldBeBiggerThanValidator<KeyType>> {
   final double min;
 
-  ShouldBeBiggerThanValidator(
-    this.min, {
+  ShouldBeBiggerThanValidator({
+    @required this.min,
     KeyType key,
     String Function(ShouldBeBiggerThanValidator<KeyType> validator, Field field)
         buildErrorMessage,
@@ -342,8 +344,9 @@ class ShouldBeSmallerThenValidator<KeyType> extends FieldValidator<double,
     KeyType, ShouldBeSmallerThenValidator<KeyType>> {
   final double max;
 
-  ShouldBeSmallerThenValidator(this.max,
-      {String Function(
+  ShouldBeSmallerThenValidator(
+      {@required this.max,
+      String Function(
               ShouldBeSmallerThenValidator<KeyType> validator, Field field)
           buildErrorMessage,
       KeyType key})
@@ -364,8 +367,9 @@ class ShouldBeBiggerOrEqualThenValidator<KeyType> extends FieldValidator<double,
     KeyType, ShouldBeBiggerOrEqualThenValidator<KeyType>> {
   final double min;
 
-  ShouldBeBiggerOrEqualThenValidator(this.min,
-      {String Function(ShouldBeBiggerOrEqualThenValidator<KeyType> validator,
+  ShouldBeBiggerOrEqualThenValidator(
+      {@required this.min,
+      String Function(ShouldBeBiggerOrEqualThenValidator<KeyType> validator,
               Field field)
           buildErrorMessage,
       KeyType key})
@@ -386,8 +390,9 @@ class ShouldBeSmallerOrEqualThenValidator<KeyType> extends FieldValidator<
     double, KeyType, ShouldBeSmallerOrEqualThenValidator<KeyType>> {
   final double max;
 
-  ShouldBeSmallerOrEqualThenValidator(this.max,
-      {String Function(ShouldBeSmallerOrEqualThenValidator<KeyType> validator,
+  ShouldBeSmallerOrEqualThenValidator(
+      {@required this.max,
+      String Function(ShouldBeSmallerOrEqualThenValidator<KeyType> validator,
               Field field)
           buildErrorMessage,
       KeyType key})
@@ -409,8 +414,10 @@ class ShouldBeBetweenValidator<KeyType>
   final double max;
   final double min;
 
-  ShouldBeBetweenValidator(this.min, this.max,
-      {String Function(ShouldBeBetweenValidator<KeyType> validator, Field field)
+  ShouldBeBetweenValidator(
+      {@required this.min,
+      @required this.max,
+      String Function(ShouldBeBetweenValidator<KeyType> validator, Field field)
           buildErrorMessage,
       KeyType key})
       : super(
@@ -431,8 +438,10 @@ class ShouldBeBetweenOrEqualValidator<KeyType> extends FieldValidator<double,
   final double max;
   final double min;
 
-  ShouldBeBetweenOrEqualValidator(this.min, this.max,
-      {String Function(
+  ShouldBeBetweenOrEqualValidator(
+      {@required this.min,
+      @required this.max,
+      String Function(
               ShouldBeBetweenOrEqualValidator<KeyType> validator, Field field)
           buildErrorMessage,
       KeyType key})

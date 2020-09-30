@@ -168,7 +168,9 @@ void main() {
         var sut = FormValidationState<FormKeys>(fields: [
           Field<FormKeys>(
               key: FormKeys.Key1,
-              validators: [ShouldBeBiggerThanValidator(19)], //Validator double
+              validators: [
+                ShouldBeBiggerThanValidator(min: 19)
+              ], //Validator double
               value: "20"), //Input String
         ]);
         expect(sut.isValid, true); // This should just trigger validation
@@ -178,7 +180,7 @@ void main() {
         var sut = FormValidationState<FormKeys>(fields: [
           Field<FormKeys>(
               key: FormKeys.Key1,
-              validators: [ShouldBeBiggerThanValidator(19)],
+              validators: [ShouldBeBiggerThanValidator(min: 19)],
               value: AssertionError()),
         ]);
         expect(() => sut.isValid, throwsA(isA<UnsupportedError>()));
@@ -241,7 +243,7 @@ void main() {
             typeConverter: [
               DummyForTypeConverterReturnsNullToDoubleTypeConverter()
             ]);
-        testFieldValidator(ShouldBeBiggerThanValidator(20),
+        testFieldValidator(ShouldBeBiggerThanValidator(min: 20),
             DummyForTypeConverterReturnsNull(), true);
       });
 
@@ -293,64 +295,80 @@ void main() {
 
       test('ShouldBeBiggerThenValidator', () {
         testFieldValidator(
-            ShouldBeBiggerThanValidator<FormKeys>(5), 4.99, false);
-        testFieldValidator(ShouldBeBiggerThanValidator<FormKeys>(5), 5, false);
-        testFieldValidator(ShouldBeBiggerThanValidator<FormKeys>(5), 5.1, true);
+            ShouldBeBiggerThanValidator<FormKeys>(min: 5), 4.99, false);
+        testFieldValidator(
+            ShouldBeBiggerThanValidator<FormKeys>(min: 5), 5, false);
+        testFieldValidator(
+            ShouldBeBiggerThanValidator<FormKeys>(min: 5), 5.1, true);
       });
 
       test('ShouldBeSmallerThenValidator', () {
         testFieldValidator(
-            ShouldBeSmallerThenValidator<FormKeys>(5), 4.99, true);
-        testFieldValidator(ShouldBeSmallerThenValidator<FormKeys>(5), 5, false);
+            ShouldBeSmallerThenValidator<FormKeys>(max: 5), 4.99, true);
         testFieldValidator(
-            ShouldBeSmallerThenValidator<FormKeys>(5), 5.1, false);
+            ShouldBeSmallerThenValidator<FormKeys>(max: 5), 5, false);
+        testFieldValidator(
+            ShouldBeSmallerThenValidator<FormKeys>(max: 5), 5.1, false);
       });
 
       test('ShouldBeSmallerOrEqualThenValidator', () {
         testFieldValidator(
-            ShouldBeSmallerOrEqualThenValidator<FormKeys>(5), 4.99, true);
+            ShouldBeSmallerOrEqualThenValidator<FormKeys>(max: 5), 4.99, true);
         testFieldValidator(
-            ShouldBeSmallerOrEqualThenValidator<FormKeys>(5), 5, true);
+            ShouldBeSmallerOrEqualThenValidator<FormKeys>(max: 5), 5, true);
         testFieldValidator(
-            ShouldBeSmallerOrEqualThenValidator<FormKeys>(5), 5.1, false);
+            ShouldBeSmallerOrEqualThenValidator<FormKeys>(max: 5), 5.1, false);
       });
 
       test('ShouldBeBiggerOrEqualThenValidator', () {
         testFieldValidator(
-            ShouldBeBiggerOrEqualThenValidator<FormKeys>(5), 4.99, false);
+            ShouldBeBiggerOrEqualThenValidator<FormKeys>(min: 5), 4.99, false);
         testFieldValidator(
-            ShouldBeBiggerOrEqualThenValidator<FormKeys>(5), 5, true);
+            ShouldBeBiggerOrEqualThenValidator<FormKeys>(min: 5), 5, true);
         testFieldValidator(
-            ShouldBeBiggerOrEqualThenValidator<FormKeys>(5), 5.1, true);
+            ShouldBeBiggerOrEqualThenValidator<FormKeys>(min: 5), 5.1, true);
       });
 
       test('ShouldBeBetweenOrEqualValidator', () {
         testFieldValidator(
-            ShouldBeBetweenOrEqualValidator<FormKeys>(5, 10), 4.99, false);
+            ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10),
+            4.99,
+            false);
         testFieldValidator(
-            ShouldBeBetweenOrEqualValidator<FormKeys>(5, 10), 5, true);
+            ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10),
+            5,
+            true);
         testFieldValidator(
-            ShouldBeBetweenOrEqualValidator<FormKeys>(5, 10), 5.1, true);
+            ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10),
+            5.1,
+            true);
         testFieldValidator(
-            ShouldBeBetweenOrEqualValidator<FormKeys>(5, 10), 9.9, true);
+            ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10),
+            9.9,
+            true);
         testFieldValidator(
-            ShouldBeBetweenOrEqualValidator<FormKeys>(5, 10), 10, true);
+            ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10),
+            10,
+            true);
         testFieldValidator(
-            ShouldBeBetweenOrEqualValidator<FormKeys>(5, 10), 10.1, false);
+            ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10),
+            10.1,
+            false);
       });
 
       test('ShouldBeBetweenValidator', () {
         testFieldValidator(
-            ShouldBeBetweenValidator<FormKeys>(5, 10), 4.99, false);
-        testFieldValidator(ShouldBeBetweenValidator<FormKeys>(5, 10), 5, false);
+            ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 4.99, false);
         testFieldValidator(
-            ShouldBeBetweenValidator<FormKeys>(5, 10), 5.1, true);
+            ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 5, false);
         testFieldValidator(
-            ShouldBeBetweenValidator<FormKeys>(5, 10), 9.9, true);
+            ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 5.1, true);
         testFieldValidator(
-            ShouldBeBetweenValidator<FormKeys>(5, 10), 10, false);
+            ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 9.9, true);
         testFieldValidator(
-            ShouldBeBetweenValidator<FormKeys>(5, 10), 10.1, false);
+            ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 10, false);
+        testFieldValidator(
+            ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 10.1, false);
       });
     });
 

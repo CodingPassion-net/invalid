@@ -49,6 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
               validationCapability: TextValidationCapability<FormKeys>(
                   validationKey: FormKeys.Key1,
                   validators: [
+                    ShouldBeBetweenValidator(min: 3, max: 5),
                     ShouldNotBeEmptyValidator(
                       buildErrorMessage: (validator, field) =>
                           "should not be empty (Key 1)",
