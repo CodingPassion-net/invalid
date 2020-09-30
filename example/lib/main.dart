@@ -28,6 +28,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,11 +44,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
           child: ValidationForm<FormKeys>(
-        enabled: true,
         formValidators: [
           ShouldBeEqualFormValidator(
-              buildErrorMessage: (validator, fields) =>
-                  "${fields.findByFieldKey(FormKeys.Key1).fieldName} must be equal to ${fields.findByFieldKey(FormKeys.Key1).fieldName}",
+              buildErrorMessage: (validator, fields) => "should be equal",
               keysOfFieldsWhichShouldBeEqual: [FormKeys.Key1, FormKeys.Key2])
         ],
         child: Column(
@@ -50,12 +56,6 @@ class _MyHomePageState extends State<MyHomePage> {
               validationCapability: TextValidationCapability<FormKeys>(
                   validationKey: FormKeys.Key1,
                   validators: [
-                    ShouldBeBetweenValidator(
-                      min: 3,
-                      max: 5,
-                      buildErrorMessage: (validator, field) =>
-                          "You should weigh between ${validator.min} and ${validator.min}. Your current weight is ${field.value}",
-                    ),
                     ShouldNotBeEmptyValidator(
                       buildErrorMessage: (validator, field) =>
                           "should not be empty (Key 1)",
@@ -81,6 +81,11 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       )),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: Icon(Icons.add),
+      ),
     );
   }
 }
