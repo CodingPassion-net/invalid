@@ -27,25 +27,6 @@ class FormValidationCubit<KeyType> extends Cubit<FormValidationState<KeyType>> {
   void disableValidation() => emit(state.copyWith(enabled: false));
 }
 
-class FormValidationEvent {}
-
-class UpdateFieldEvent<KeyType> extends FormValidationEvent {
-  KeyType fieldKey;
-  dynamic newValue;
-
-  UpdateFieldEvent(this.fieldKey, this.newValue);
-}
-
-class AddFieldEvent<KeyType> extends FormValidationEvent {
-  Field<KeyType> newField;
-
-  AddFieldEvent(this.newField);
-}
-
-class EnableValidationEvent extends FormValidationEvent {}
-
-class DisableValidationEvent extends FormValidationEvent {}
-
 class FormValidationState<KeyType> extends Equatable {
   final Iterable<Field<KeyType>> fields;
   final Iterable<FormValidator<KeyType, FormValidator>> formValidators;
