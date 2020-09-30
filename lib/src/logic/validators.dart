@@ -123,7 +123,7 @@ class ShouldBeEqualFormValidator<KeyType>
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
-                    .defaultValidationMessages
+                    .defaultValidationMessagesLocalization
                     .shouldBeEqualValidationMessage,
             key: key) {
     assert(keysOfFieldsWhichShouldBeEqual.length >= 2);
@@ -200,7 +200,7 @@ class ShouldNotBeNullValidator<TypeOfValidatedValue, KeyType>
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
-                    .defaultValidationMessages
+                    .defaultValidationMessagesLocalization
                     .shouldNotBeNullValidationMessage,
             key);
 
@@ -225,7 +225,7 @@ class ShouldNotBeEmptyValidator<KeyType> extends FieldValidator<String, KeyType,
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
-                    .defaultValidationMessages
+                    .defaultValidationMessagesLocalization
                     .shouldNotBeEmptyValidationMessage,
             key);
 
@@ -245,7 +245,7 @@ class ShouldNotBeEmptyOrWhiteSpaceValidator<KeyType> extends FieldValidator<
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
-                    .defaultValidationMessages
+                    .defaultValidationMessagesLocalization
                     .shouldNotBeEmptyOrWhiteSpaceValidationMessage,
             key);
 
@@ -264,7 +264,7 @@ class ShouldBeTrueValidator<KeyType>
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
-                    .defaultValidationMessages
+                    .defaultValidationMessagesLocalization
                     .shouldBeTrueValidationMessage,
             key);
 
@@ -283,7 +283,7 @@ class ShouldBeFalseValidator<KeyType>
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
-                    .defaultValidationMessages
+                    .defaultValidationMessagesLocalization
                     .shouldBeFalseValidationMessage,
             key);
 
@@ -306,7 +306,7 @@ class ShouldInBetweenDatesValidator<KeyType> extends FieldValidator<DateTime,
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
-                    .defaultValidationMessages
+                    .defaultValidationMessagesLocalization
                     .shouldBeInBetweenDatesValidationMessage,
             key);
 
@@ -328,7 +328,7 @@ class ShouldBeBiggerThanValidator<KeyType> extends FieldValidator<double,
   }) : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
-                    .defaultValidationMessages
+                    .defaultValidationMessagesLocalization
                     .shouldBeBiggerThanValidationMessage,
             key);
 
@@ -350,7 +350,7 @@ class ShouldBeSmallerThenValidator<KeyType> extends FieldValidator<double,
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
-                    .defaultValidationMessages
+                    .defaultValidationMessagesLocalization
                     .shouldBeSmallerThanValidationMessage,
             key);
 
@@ -372,7 +372,7 @@ class ShouldBeBiggerOrEqualThenValidator<KeyType> extends FieldValidator<double,
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
-                    .defaultValidationMessages
+                    .defaultValidationMessagesLocalization
                     .shouldBeBiggerOrEqualThanValidationMessage,
             key);
 
@@ -394,7 +394,7 @@ class ShouldBeSmallerOrEqualThenValidator<KeyType> extends FieldValidator<
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
-                    .defaultValidationMessages
+                    .defaultValidationMessagesLocalization
                     .shouldBeSmallerOrEqualThanValidationMessage,
             key);
 
@@ -416,7 +416,7 @@ class ShouldBeBetweenValidator<KeyType>
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
-                    .defaultValidationMessages
+                    .defaultValidationMessagesLocalization
                     .shouldBeBetweenValidationMessage,
             key);
 
@@ -439,7 +439,7 @@ class ShouldBeBetweenOrEqualValidator<KeyType> extends FieldValidator<double,
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
-                    .defaultValidationMessages
+                    .defaultValidationMessagesLocalization
                     .shouldBeBetweenOrEqualValidationMessage,
             key);
 

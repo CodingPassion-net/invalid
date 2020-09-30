@@ -4,14 +4,15 @@ import 'type_converter.dart';
 import 'validators.dart';
 
 class ValidationConfiguration<
-    DefaultValidationMessagesType extends DefaultValidationMessages> {
+    DefaultValidationMessagesType extends DefaultValidationMessagesLocalization> {
   final List<TypeConverter> _typeConverter;
-  final DefaultValidationMessagesType defaultValidationMessages;
+  final DefaultValidationMessagesType defaultValidationMessagesLocalization;
 
-  static ValidationConfiguration<DefaultValidationMessages> _instance;
+  static ValidationConfiguration<DefaultValidationMessagesLocalization>
+      _instance;
 
   ValidationConfiguration._(
-      this.defaultValidationMessages, this._typeConverter);
+      this.defaultValidationMessagesLocalization, this._typeConverter);
 
   factory ValidationConfiguration.initialize(
       DefaultValidationMessagesType defaultValidationMessages,
@@ -41,7 +42,7 @@ class ValidationConfiguration<
   }
 }
 
-abstract class DefaultValidationMessages {
+abstract class DefaultValidationMessagesLocalization {
   String shouldBeEqualValidationMessage(
       ShouldBeEqualFormValidator val, Iterable<Field> fields);
 

@@ -534,7 +534,8 @@ class DummyForTypeConverterReturnsNullToDoubleTypeConverter
   }
 }
 
-class EmptyDefaultValidationMessages extends DefaultValidationMessages {
+class EmptyDefaultValidationMessages
+    extends DefaultValidationMessagesLocalization {
   @override
   String shouldBeEqualValidationMessage(_, __) => "empty val msg";
 
