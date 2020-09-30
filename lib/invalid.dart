@@ -3,5 +3,4 @@ export 'src/logic/type_converter.dart';
 export 'src/logic/validation_configuration.dart';
 export 'src/logic/validators.dart';
 export 'src/widgets/validation_form.dart';
-export 'src/widgets/validation_form_messages_summary_widget.dart';
 export 'src/widgets/validation_messages.dart';

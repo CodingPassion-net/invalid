@@ -8,9 +8,9 @@ class ValidationMessages<FormKeyType> extends StatelessWidget {
   final EdgeInsets padding;
   final ValidityFilter filterByValidity;
   final bool ignoreIfFormIsEnabled;
+  final bool onlyFirstValidationResult;
   final Widget Function(List<ValidationResult> validationMessages)
       validationMessagesBuilder;
-  final bool onlyFirstValidationResult;
 
   const ValidationMessages(
       {this.filterByKeys,
