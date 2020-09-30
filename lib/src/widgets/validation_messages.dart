@@ -16,12 +16,16 @@ class ValidationMessages<FormKeyType> extends StatelessWidget {
       {this.filterByKeys,
       @required this.validationMessagesBuilder,
       Key key,
-      this.padding = EdgeInsets.zero,
+      EdgeInsets padding,
       this.filterByValidatorType,
-      this.filterByValidity = ValidityFilter.OnlyInvalid,
-      this.ignoreIfFormIsEnabled = false,
-      this.onlyFirstValidationResult = false})
-      : super(key: key);
+      ValidityFilter filterByValidity,
+      bool ignoreIfFormIsEnabled,
+      bool onlyFirstValidationResult})
+      : ignoreIfFormIsEnabled = ignoreIfFormIsEnabled ?? false,
+        filterByValidity = filterByValidity ?? ValidityFilter.OnlyInvalid,
+        padding = padding ?? EdgeInsets.zero,
+        onlyFirstValidationResult = onlyFirstValidationResult ?? false,
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {

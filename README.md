@@ -1,6 +1,6 @@
 # Motivation
 
-- **Nested Forms** (not possible with Flutter Form)
+- **Nested Forms are possible** (not possible with Flutter Form)
 - **Reusing validators is easy** (difficult with Flutter Form)
 - **Combining validators is easy** (difficult with Flutter Form)
 - **Prebuilt validators** (Flutter ships without validators)
