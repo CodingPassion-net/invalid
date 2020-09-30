@@ -76,5 +76,185 @@ If you are not using localization, you can initialize for example in the `main` 
 ValidationConfiguration<DefaultValidationMessagesLocalization>.initialize(MyDefaultValidationMessagesLocalization(loc)]);
 ```
 
+Step 3: With `ValidationCapability` you can add validation to all of your input widgets like for example `TextField`, `Slider` or even `Checkbox`.
+
+For `TextField` there exists a prebuilt Capability:
+
+``` dart
+class CustomTextField extends StatefulWidget {
+  final TextValidationCapability validationCapability;
+  CustomTextField({Key key, this.validationCapability}) : super(key: key);
+
+  @override
+  _CustomTextFieldState createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  final TextEditingController _textEditingController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    widget.validationCapability
+        .init(context, controller: _textEditingController);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _textEditingController,
+    );
+  }
+}
+```
+
+Step 4 (optional):
+It's suggested to also add a custom validation messages widget, which can be styled in the design of your app and resued across the application.
+
+``` dart
+class CustomValidationMessages<FormKeyType> extends StatefulWidget {
+  final List<FormKeyType> filterByKeys;
+  final ValidatorTypeFilter filterByValidatorType;
+  final ValidityFilter filterByValidity;
+  final bool ignoreIfFormIsEnabled;
+  final bool onlyFirstValidationResult;
+
+  const CustomValidationMessages(
+      {Key key,
+      this.filterByKeys,
+      this.filterByValidatorType,
+      this.ignoreIfFormIsEnabled = false,
+      this.filterByValidity = ValidityFilter.OnlyInvalid,
+      this.onlyFirstValidationResult = false})
+      : super(key: key);
+  @override
+  CustomValidationMessagesState createState() =>
+      CustomValidationMessagesState<FormKeyType>();
+}
+
+class CustomValidationMessagesState<FormKeyType>
+    extends State<CustomValidationMessages> {
+  @override
+  Widget build(BuildContext context) {
+    return ValidationMessages<FormKeyType>(
+      filterByKeys: widget.filterByKeys as List<FormKeyType>,
+      filterByValidatorType: widget.filterByValidatorType,
+      filterByValidity: widget.filterByValidity,
+      ignoreIfFormIsEnabled: widget.ignoreIfFormIsEnabled,
+      onlyFirstValidationResult: widget.onlyFirstValidationResult,
+      validationMessagesBuilder: (validationMessages) {
+		
+		// Here you can style your widget as you want
+        return Column(
+          children: [
+            for (ValidationResult result in validationMessages)
+              Text(result.message)
+          ],
+        );
+      },
+    );
+  }
+}
+```
+
+# Documentation
+
+## ValidationForm
+
+All input fields with validation capability must be children of `ValidationForm`. Each form is uniquely identified by the type of the key. In this case `ChangePasswordForm`. 
+
+
+``` dart
+ValidationForm<ChangePasswordForm>(
+	enabled: true, // To enable validation from the beginning. Normally this will be enabled a click on a button.
+	onUpdate: (state) {}, // Is called when the validation state updates
+	onFormTurnedInValid: (state) {}, // Is called when the form turns invalid
+	onFormTurnedValid: (state) {}, // Is called when the form turns valid
+	onFormValidationCubitCreated: (form) {}, // Gives access to the form
+	formValidators: [], // Adding FormValidators 
+	child: Container()
+)
+```
+
+We suggest to create an enum with keys for each form. The type of the enum identifies the form. The values of the enums can be used as keys to identify fields, field validators, form validators.
+
+``` dart
+enum ChangePasswordForm { OldPasswordField, NewPasswordField, NewPasswordFieldConfirmation, PasswordsMustBeEqualFormValidatorKey }
+
+```
+
+## Input (Validation Fields)
+
+Every input field must be a descendant of the `ValidationForm`. The type the form key must be specified as type parameter of `ValidationCapability`. This is how the form knows, which fields are belonging to it.
+
+``` dart
+CustomTextField(
+	validationCapability: TextValidationCapability<ChangePasswordForm>( // Don't forget the key type.
+		validationKey: ChangePasswordForm.OldPasswordField,
+		validators: [ShouldNotBeEmptyValidator()],
+		autovalidate: false // Should this text field be validated as you type.
+	),
+)
+```
+
+## ValidationMessages
+
+The `ValidationMessages` widget is there to display validation messages in any kind and at any place within the app, as long as it is a child of the form. The type the form key must be specified as type parameter of `ValidationMessages`. ValidationMessages is a very flexible widget:
+
+This displays all validation messages of the form `ChangePasswordForm`.
+``` dart
+CustomValidationMessages<ChangePasswordForm>()
+```
+
+This displays only the validation messages for the field with the key `ChangePasswordForm.OldPasswordField`.
+``` dart
+CustomValidationMessages<ChangePasswordForm>(
+	filterByKeys: [ChangePasswordForm.OldPasswordField],
+)
+```
+
+You can also display only the validation messages for the specific field and form validators, by assigning them keys.
+``` dart
+CustomValidationMessages<ChangePasswordForm>(
+	filterByKeys: [ChangePasswordForm.PasswordsMustBeEqualFormValidatorKey],
+)
+```
+
+You can only show validation messages from field validators or only from form validators.
+``` dart
+CustomValidationMessages<ChangePasswordForm>(
+	filterByValidatorType: ValidatorTypeFilter.FieldValidator, // Can also be ValidatorTypeFilter.FormValidator
+)
+```
+
+If you for example have a field with multiple validators, like a password field you can specify to always show the first validation message.
+``` dart
+CustomValidationMessages<ChangePasswordForm>(
+	filterByKeys: [ChangePasswordForm.NewPasswordField],
+	onlyFirstValidationResult: true
+)
+```
+
+### Positive Validation
+
+If you want to show a list of password requirements and show the user which one he has already fulfilled and which one he still needs to fulfill. You can specify that validation messages for valid and invald validators are shown.
+
+``` dart
+ValidationMessages<ChangePasswordForm>(
+	filterByValidity: ValidityFilter.ValidAndInvalid, // ValidityFilter.OnlyValid is also possible 
+	ignoreIfFormIsEnabled: true,
+	validationMessagesBuilder: (validationMessages) {
+        return Column(
+          children: [
+            for (ValidationResult result in validationMessages)
+              Text(result.message + result.isValid.toString())
+          ],
+        );
+      },
+)
+```
+
 # Troubleshooting
 - Types?
+
+# Suggestions
+- Strong typing
