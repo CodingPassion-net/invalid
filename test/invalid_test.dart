@@ -1,4 +1,3 @@
-import 'package:bloc_test/bloc_test.dart';
 import 'package:intl/intl.dart';
 import 'package:invalid/invalid.dart';
 import 'package:test/test.dart';
@@ -12,22 +11,6 @@ Matcher resultHasMessage(String message) => isA<ValidationResult<FormKeys>>()
 void main() {
   ValidationConfiguration<EmptyDefaultValidationMessages>.initialize(
       EmptyDefaultValidationMessages());
-
-  group('FormValidationBloc', () {
-    // ignore: close_sinks
-    FormValidationCubit<dynamic> parentFormValidationBloc =
-        FormValidationCubit<dynamic>(FormValidationState());
-
-    blocTest<FormValidationCubit, FormValidationState>(
-        "If parent validation Bloc enables validation, validation for the current bloc should be enabled to",
-        build: () {
-          return FormValidationCubit<dynamic>(FormValidationState(),
-              parentFormValidationBloc: parentFormValidationBloc);
-        },
-        wait: Duration(milliseconds: 50),
-        act: (_) async => parentFormValidationBloc.enableValidation(),
-        expect: [FormValidationState(enabled: true)]);
-  });
 
   group('Validation', () {
     group('FormValidator', () {

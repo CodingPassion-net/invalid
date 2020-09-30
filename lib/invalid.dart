@@ -1,4 +1,4 @@
-export 'src/logic/form_validation_bloc.dart';
+export 'src/logic/form_validation_cubit.dart';
 export 'src/logic/type_converter.dart';
 export 'src/logic/validation_configuration.dart';
 export 'src/logic/validators.dart';

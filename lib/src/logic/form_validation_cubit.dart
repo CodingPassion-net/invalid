@@ -5,17 +5,7 @@ import 'type_converter.dart';
 import 'validators.dart';
 
 class FormValidationCubit<KeyType> extends Cubit<FormValidationState<KeyType>> {
-  FormValidationCubit(FormValidationState initialState,
-      {FormValidationCubit parentFormValidationBloc})
-      : super(initialState) {
-    if (parentFormValidationBloc != null) {
-      parentFormValidationBloc.listen((parentFormValidationState) {
-        if (parentFormValidationState.enabled) {
-          enableValidation();
-        }
-      });
-    }
-  }
+  FormValidationCubit(FormValidationState initialState) : super(initialState);
 
   void updateField(KeyType fieldKey, dynamic newValue) =>
       emit(state.updateField(fieldKey, newValue));
