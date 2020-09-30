@@ -1,6 +1,6 @@
+import 'package:test/test.dart';
 import 'package:intl/intl.dart';
 import 'package:invalid/invalid.dart';
-import 'package:test/test.dart';
 
 Matcher resultIsValid(bool value) => isA<ValidationResult<FormKeys>>()
     .having((result) => result.isValid, "", value);
@@ -54,58 +54,113 @@ void main() {
         expect(sut.isValid, false);
       });
 
-      group('test validation messages', () {
+      group('test validation results', () {
         FormValidationState<FormKeys> sut;
         setUp(() {
           sut = FormValidationState<FormKeys>(enabled: true, fields: [
             Field<FormKeys>(key: FormKeys.Key1, validators: [
-              AlwaysTrueValidator(),
+              AlwaysTrueValidator(
+                  errorMsg: (_, __) => "(Key1) (Valid) (Fieldvalidator)"),
               AlwaysFalseValidator(
-                  errorMsg: (_, __) => "Validationmessage from Key1")
+                  key: FormKeys.Key4,
+                  errorMsg: (_, __) => "(Key4) (Invalid) (Fieldvalidator)")
             ]),
-            Field<FormKeys>(
-                key: FormKeys.Key2,
-                validators: [AlwaysFalseValidator(), AlwaysTrueValidator()])
+            Field<FormKeys>(key: FormKeys.Key2, validators: [
+              AlwaysFalseValidator(),
+              AlwaysTrueValidator(
+                  errorMsg: (_, __) => "(Key2) (Invalid) (Fieldvalidator)")
+            ])
           ], formValidators: [
             AlwaysFalseFormValidator<FormKeys>(
                 key: FormKeys.Key3,
-                errorMsg: (_) => "Validationmessage from Key3"),
+                errorMsg: (_, __) => "(Key3) (Invalid) (Formvalidator)"),
             AlwaysFalseFormValidator<FormKeys>(key: FormKeys.Key4)
           ]);
         });
 
         test(
-            'validationMessagesOfKey should return all ValidationResults of invalid fields and invalid form validators, but only if they match the key',
+            'validationResultsWhenFormIsEnabled should return empty list if form is disabled',
             () {
-          expect(
-              sut.invalidValidationResultsByKeys(
-                  [FormKeys.Key1, FormKeys.Key3]),
-              [
-                matchValidationResultWithMessage("Validationmessage from Key1"),
-                matchValidationResultWithMessage("Validationmessage from Key3"),
-              ]);
+          sut = sut.copyWith(enabled: false);
+          expect(sut.validationResultsWhenFormIsEnabled, <ValidationResult>[]);
         });
 
         test(
-            'formValidatorValidationMessages should return only ValidationResults of invalid formValidators',
+            'validationResultsWhenFormIsEnabled should return ValidationResults when form is enabled',
             () {
-          expect(sut.invalidFormValidationResults, [
-            matchValidationResultWithMessage("Validationmessage from Key3"),
+          sut = sut.copyWith(enabled: true);
+          expect(sut.validationResultsWhenFormIsEnabled,
+              hasLength(greaterThan(0)));
+        });
+        test(
+            'validationResultsWhenFormIsEnabled should return ValidationResults when form is enabled',
+            () {
+          sut = sut.copyWith(enabled: true);
+          expect(sut.allValidationResults, hasLength(greaterThan(0)));
+          sut = sut.copyWith(enabled: false);
+          expect(sut.allValidationResults, hasLength(greaterThan(0)));
+        });
+
+        test(
+            'filterByKeys should only return validation results where the key is in the list',
+            () {
+          expect(
+              sut.allValidationResults
+                  .filterByKeys([FormKeys.Key4, FormKeys.Key3]),
+              [
+                matchValidationResultWithMessage(
+                    "(Key4) (Invalid) (Fieldvalidator)"),
+                matchValidationResultWithMessage(
+                    "(Key3) (Invalid) (Formvalidator)"),
+                matchValidationResultWithMessage(
+                    "(Default) (Invalid) (Formvalidator)"),
+              ]);
+        });
+
+        test('onlyInvald should only return invald validation results', () {
+          expect(sut.allValidationResults.onlyInvalid, [
             matchValidationResultWithMessage(
-                'Validationmessage from invalid form validator')
+                "(Key4) (Invalid) (Fieldvalidator)"),
+            matchValidationResultWithMessage(
+                "(Default) (Invalid) (Fieldvalidator)"),
+            matchValidationResultWithMessage(
+                "(Key3) (Invalid) (Formvalidator)"),
+            matchValidationResultWithMessage(
+                "(Default) (Invalid) (Formvalidator)"),
+          ]);
+        });
+
+        test('onlyValid should only return invald validation results', () {
+          expect(sut.allValidationResults.onlyValid, [
+            matchValidationResultWithMessage("(Key1) (Valid) (Fieldvalidator)"),
+            matchValidationResultWithMessage(
+                "(Key2) (Invalid) (Fieldvalidator)"),
           ]);
         });
 
         test(
-            'if validation is disabled no all ValidationResults should return empty list',
+            'onlyFormValidationResults should only return ValidationResults from FormValidators',
             () {
-          sut = sut.copyWith(enabled: false);
-          expect(sut.invalidValidationResults, <ValidationResult>[]);
-          expect(sut.invalidFormValidationResults, <ValidationResult>[]);
-          expect(
-              sut.invalidValidationResultsByKeys(
-                  [FormKeys.Key1, FormKeys.Key3]),
-              <ValidationResult>[]);
+          expect(sut.allValidationResults.onlyFormValidationResults, [
+            matchValidationResultWithMessage(
+                "(Key3) (Invalid) (Formvalidator)"),
+            matchValidationResultWithMessage(
+                "(Default) (Invalid) (Formvalidator)"),
+          ]);
+        });
+
+        test(
+            'onlyFieldValidationResults should only return ValidationResults from FieldValidators',
+            () {
+          expect(sut.allValidationResults.onlyFieldValidationResults, [
+            matchValidationResultWithMessage("(Key1) (Valid) (Fieldvalidator)"),
+            matchValidationResultWithMessage(
+                "(Key4) (Invalid) (Fieldvalidator)"),
+            matchValidationResultWithMessage(
+                "(Default) (Invalid) (Fieldvalidator)"),
+            matchValidationResultWithMessage(
+                "(Key2) (Invalid) (Fieldvalidator)"),
+          ]);
         });
       });
 
@@ -397,8 +452,8 @@ class AlwaysFalseValidator
   AlwaysFalseValidator(
       {String Function(AlwaysFalseValidator val, Field field) errorMsg,
       FormKeys key})
-      : super(errorMsg ?? (_, __) => "Validationmessage from invalid validator",
-            key);
+      : super(
+            errorMsg ?? (_, __) => "(Default) (Invalid) (Fieldvalidator)", key);
 
   @override
   bool isValid(dynamic value) {
@@ -425,9 +480,7 @@ class AlwaysFalseFormValidator<KeyType>
       {KeyType key,
       String Function(AlwaysFalseFormValidator val, Iterable<Field> fields)
           errorMsg})
-      : super(
-            errorMsg ??
-                (_, __) => "Validationmessage from invalid form validator",
+      : super(errorMsg ?? (_, __) => "(Default) (Invalid) (Formvalidator)",
             key: key);
 
   @override
@@ -443,9 +496,7 @@ class AlwaysTrueFormValidator<KeyType>
       String Function(
               AlwaysTrueFormValidator<KeyType> val, Iterable<Field> fields)
           errorMsg})
-      : super(
-            errorMsg ??
-                (_, __) => "Validationmessage from invalid form validator",
+      : super(errorMsg ?? (_, __) => "(Default) (Invalid) (Formvalidator)",
             key: key);
 
   @override

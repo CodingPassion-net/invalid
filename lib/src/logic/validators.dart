@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
+import 'package:invalid/invalid.dart';
 import 'package:meta/meta.dart';
-import 'type_converter.dart';
 import 'validation_configuration.dart';
 
 @immutable
@@ -27,6 +27,9 @@ class ValidationResult<KeyType> extends Equatable {
       formValidatorKey: formValidatorKey,
     );
   }
+
+  @override
+  bool get stringify => true;
 
   @override
   List<Object> get props => [
@@ -85,6 +88,7 @@ abstract class FieldValidator<
   }
 }
 
+/// A [FormValidator] is a validator, that can span multiple fields.
 @immutable
 abstract class FormValidator<KeyType,
         TFormValidator extends FormValidator<KeyType, TFormValidator>>

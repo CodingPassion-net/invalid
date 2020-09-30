@@ -2,22 +2,35 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:invalid/invalid.dart';
 
-class ValidationFormWidget<KeyType> extends StatelessWidget {
-  final Iterable<Field<KeyType>> fields;
+class ValidationForm<KeyType> extends StatelessWidget {
   final Iterable<FormValidator<KeyType, FormValidator>> formValidators;
+
+  /// Will be called once the form turns from invald to valid.
+  /// But be aware, fields (therefor also validatores) can be removed asynchronously.
+  /// When you remove all fields (therefor also validatores) the form turns valid and this callback is called.
   final Function(FormValidationState<KeyType>) onFormTurnedValid;
+
+  /// Will be called once the form turns from valid to invalid.
+  /// But be aware, fields (therefor also validatores) are added asynchronously (for example in initState of TextField),
+  /// which means, that the form is valid at the beginning and once you add fields it can turn invalid.
+  /// That's why it can happen that this callback is called immediately, after adding fields.
   final Function(FormValidationState<KeyType>) onFormTurnedInValid;
+
+  /// [onUpdate] will be called when the state of [FormValidationState] changes.
   final Function(FormValidationState<KeyType>) onUpdate;
   final Function(FormValidationCubit<KeyType>) onFormValidationCubitCreated;
-  final Widget child;
+
+  /// If true, the validation messages are shown immediately, if false it must be enabled before.
+  /// Use case for this is when you have a form, and you want validation messages to appear after the user
+  /// has clicked the submit button.
   final bool enabled;
-  const ValidationFormWidget(
+  final Widget child;
+  const ValidationForm(
       {Key key,
-      this.fields,
+      @required this.child,
       this.enabled = false,
       this.formValidators,
       this.onUpdate,
-      @required this.child,
       this.onFormTurnedValid,
       this.onFormTurnedInValid,
       this.onFormValidationCubitCreated})
@@ -29,9 +42,7 @@ class ValidationFormWidget<KeyType> extends StatelessWidget {
       create: (BuildContext context) {
         var formValidationCubit = FormValidationCubit<KeyType>(
             FormValidationState<KeyType>(
-                enabled: enabled,
-                fields: fields,
-                formValidators: formValidators));
+                enabled: enabled, formValidators: formValidators));
         onFormValidationCubitCreated?.call(formValidationCubit);
         return formValidationCubit;
       },
@@ -114,7 +125,7 @@ class ValidationCapability<KeyType> {
       List<FieldValidator<dynamic, KeyType, dynamic>> validators,
       Field field}) {
     return ValidationCapability<KeyType>(
-        fieldName: fieldName ?? this.fieldName,
+        fieldName: fieldName ?? fieldName,
         validators: validators ?? [..._validators],
         validationKey: validationKey ?? this.validationKey);
   }
@@ -139,12 +150,9 @@ class TextValidationCapability<KeyType> extends ValidationCapability<KeyType> {
       {@required TextEditingController controller}) {
     super.init(context);
     _controller = controller;
-    updateTextField();
-    if (autoValidate) _controller?.addListener(updateTextField);
-  }
-
-  void updateTextField() {
-    super.addUpdateFieldEvent(_controller.text);
+    addUpdateFieldEvent(_controller.text);
+    if (autoValidate)
+      _controller?.addListener(() => addUpdateFieldEvent(_controller.text));
   }
 }
 
