@@ -77,21 +77,9 @@ class ValidationForm<KeyType> extends StatelessWidget {
   }
 }
 
-FormValidationCubit<KeyType> getForm<KeyType>(BuildContext context) {
-  return BlocProvider.of<FormValidationCubit<KeyType>>(context);
-}
-
-FormValidationCubit<KeyType> addFieldAndGetForm<KeyType>(
-    Iterable<FieldValidator<dynamic, KeyType, dynamic>> validators,
-    KeyType key,
-    BuildContext context,
-    {String fieldName}) {
-  if (key == null) return null;
-  var formValidationBloc =
-      BlocProvider.of<FormValidationCubit<KeyType>>(context);
-  formValidationBloc.addField(
-      Field<KeyType>(key: key, validators: validators, fieldName: fieldName));
-  return formValidationBloc;
+extension BuildContextExtensions on BuildContext {
+  FormValidationCubit<KeyType> getForm<KeyType>() =>
+      BlocProvider.of<FormValidationCubit<KeyType>>(this);
 }
 
 class ValidationCapability<KeyType> {
@@ -108,9 +96,22 @@ class ValidationCapability<KeyType> {
       : _validators = validators.toList();
 
   void init(BuildContext context) {
-    _formValidationBloc = addFieldAndGetForm<KeyType>(
+    _formValidationBloc = _addFieldAndGetForm(
         _validators, validationKey, context,
         fieldName: fieldName);
+  }
+
+  FormValidationCubit<KeyType> _addFieldAndGetForm(
+      Iterable<FieldValidator<dynamic, KeyType, dynamic>> validators,
+      KeyType key,
+      BuildContext context,
+      {String fieldName}) {
+    if (key == null) return null;
+    var formValidationBloc =
+        BlocProvider.of<FormValidationCubit<KeyType>>(context);
+    formValidationBloc.addField(
+        Field<KeyType>(key: key, validators: validators, fieldName: fieldName));
+    return formValidationBloc;
   }
 
   void addUpdateFieldEvent(dynamic newVal) {

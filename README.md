@@ -302,6 +302,63 @@ ShouldBeEqualFormValidator(
 )
 ```
 
+## FormValidationCubit
+The `FormValidationCubit` is basically the controller for the form validation.
+
+You can retrieve it either this way:
+
+``` dart
+class _MyHomePageState extends State<MyHomePage> {
+  FormValidationCubit<FormKeys> _formValidation;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValidationForm<FormKeys>(
+      onFormValidationCubitCreated: (formValidation) =>
+          _formValidation = formValidation,
+    );
+  }
+}
+```
+
+or in the subtree with:
+
+``` dart
+Widget build(BuildContext context) {
+	var _form = context.getForm<FormKeys>();
+}
+```
+
+### Enable the validation for the form after clicking a button
+
+``` dart
+class _MyHomePageState extends State<MyHomePage> {
+  FormValidationCubit<FormKeys> _formValidation;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValidationForm<FormKeys>(
+      onFormValidationCubitCreated: (formValidation) =>
+          _formValidation = formValidation,
+      child: Column(
+        children: [
+          CustomTextField(
+           /// ...
+          ),
+          CustomValidationMessages<FormKeys>(),
+          RaisedButton(
+            onPressed: () {
+              _formValidation.enableValidation();
+            },
+            child: Text("Validate"),
+          )
+        ],
+      ),
+    );
+  }
+}
+```
+
 # Troubleshooting
 - `ValidationForm`, `ValidationCapability`, `ValidationMessages` always need to have the type of the form key passed as a type parameter. Maybe you have this forgotton?
 

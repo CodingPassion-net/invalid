@@ -28,13 +28,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  FormValidationCubit<FormKeys> _formValidation;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +38,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
           child: ValidationForm<FormKeys>(
+        onFormValidationCubitCreated: (formValidation) =>
+            _formValidation = formValidation,
         formValidators: [
           ShouldBeEqualFormValidator(
               buildErrorMessage: (validator, fields) => "should be equal",
@@ -77,15 +73,16 @@ class _MyHomePageState extends State<MyHomePage> {
                     )
                   ]),
             ),
-            CustomValidationMessages<FormKeys>()
+            CustomValidationMessages<FormKeys>(),
+            RaisedButton(
+              onPressed: () {
+                _formValidation.enableValidation();
+              },
+              child: Text("Validate"),
+            )
           ],
         ),
       )),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
     );
   }
 }
