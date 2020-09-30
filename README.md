@@ -68,7 +68,7 @@ class DemoLocalizations {
 
 **Step 2**: Initialize the the library like following. 
 
-If you are using localization, you need to do this, somewhere where you have access to `context` and below `WidgetsApp` in the widget tree. For example in `initState` of a descendent of `WidgetsApp`.
+If you are using localization, you need to initialize, somewhere where you have access to `context` and below `WidgetsApp` in the widget tree. For example in `initState` of a descendent widget of `WidgetsApp`.
 
 If you are not using localization, you can initialize for example in the `main` function.
 
@@ -78,7 +78,7 @@ ValidationConfiguration<DefaultValidationMessagesLocalization>.initialize(defaul
 
 **Step 3**: With `ValidationCapability` you can add validation to all of your input widgets like for example `TextField`, `Slider` or even `Checkbox`.
 
-For `TextField` there exists a prebuilt Capability:
+For `TextField` there exists a prebuilt `TextValidationCapability`:
 
 ``` dart
 class CustomTextField extends StatefulWidget {
@@ -106,6 +106,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
   }
 }
 ```
+
+For all other input widgets you need to use `ValidationCapability`.
 
 **Step 4 (optional)**:
 It's suggested to also add a custom validation messages widget, which can be styled in the design of your app and resued across the application.
@@ -184,21 +186,21 @@ enum ChangePasswordForm { OldPasswordField, NewPasswordField, NewPasswordFieldCo
 
 ## Input (Validation Fields)
 
-Every input field must be a descendant of the `ValidationForm`. The type the form key must be specified as type parameter of `ValidationCapability`. This is how the form knows, which fields are belonging to it.
+Every input field must be a descendant of the `ValidationForm` in the widget tree. The type the form key must be specified as type parameter of `ValidationCapability`. This is how the form knows, which fields are belonging to it.
 
 ``` dart
 CustomTextField(
 	validationCapability: TextValidationCapability<ChangePasswordForm>( // Don't forget the key type.
 		validationKey: ChangePasswordForm.OldPasswordField,
 		validators: [ShouldNotBeEmptyValidator()],
-		autovalidate: false // Should this text field be validated as you type.
+		autovalidate: false // Should this TextField be validated as you type.
 	),
 )
 ```
 
 ## ValidationMessages
 
-The `ValidationMessages` widget is there to display validation messages in any kind and at any place within the app, as long as it is a child of the form. The type the form key must be specified as type parameter of `ValidationMessages`. ValidationMessages is a very flexible widget:
+The `ValidationMessages` widget is there to display validation messages in any kind and at any place within the app, as long as it is a child of the form. The type the form key must be specified as type parameter of `ValidationMessages`. ValidationMessages is a very flexible widget (all filters apply as logical AND):
 
 This displays all validation messages of the form `ChangePasswordForm`.
 ``` dart
@@ -219,7 +221,7 @@ CustomValidationMessages<ChangePasswordForm>(
 )
 ```
 
-You can only show validation messages from field validators or only from form validators.
+You can also show only validation messages from field validators or only from form validators.
 ``` dart
 CustomValidationMessages<ChangePasswordForm>(
 	filterByValidatorType: ValidatorTypeFilter.FieldValidator, // Can also be ValidatorTypeFilter.FormValidator
@@ -255,7 +257,7 @@ ValidationMessages<ChangePasswordForm>(
 
 ## Validators
 
-For every validator you can specify a translatable default message. But often you just need something customized. That's why there is the `buildErrorMessage` callback, where you can build your custom validation message. There you have access to the current validator, either a form or a field validator and their parameters.
+For every validator you can specify a translatable default message. But often you just need something customized. That's why there is the `buildErrorMessage` callback, where you can build your custom validation message. There you have access to the current validator, either a form or a field validator.
 
 You can reuse any validator by assigning it to a variable:
 ``` dart
