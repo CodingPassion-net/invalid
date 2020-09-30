@@ -15,14 +15,16 @@ class ValidationConfiguration<
       this.defaultValidationMessagesLocalization, this._typeConverter);
 
   factory ValidationConfiguration.initialize(
-      DefaultValidationMessagesType defaultValidationMessages,
-      {List<TypeConverter> typeConverter = const []}) {
+      {DefaultValidationMessagesType defaultValidationMessages,
+      List<TypeConverter> typeConverter = const []}) {
     return _instance = ValidationConfiguration<DefaultValidationMessagesType>._(
-        defaultValidationMessages, [
-      StringDoubleTypeConverter(),
-      IntDoubleTypeConverter(),
-      ...typeConverter
-    ]);
+        defaultValidationMessages ??
+            EmptyDefaultValidationMessages() as DefaultValidationMessagesType,
+        [
+          StringDoubleTypeConverter(),
+          IntDoubleTypeConverter(),
+          ...typeConverter
+        ]);
   }
 
   TypeConverter<dynamic, OutputType> getTypeConverter<OutputType>(
@@ -80,4 +82,47 @@ abstract class DefaultValidationMessagesLocalization {
 
   String shouldNotBeNullValidationMessage(
       ShouldNotBeNullValidator val, Field field);
+}
+
+class EmptyDefaultValidationMessages
+    extends DefaultValidationMessagesLocalization {
+  @override
+  String shouldBeEqualValidationMessage(_, __) => "empty val msg";
+
+  @override
+  String shouldBeBetweenOrEqualValidationMessage(_, __) => "empty val msg";
+
+  @override
+  String shouldBeBetweenValidationMessage(_, __) => "empty val msg";
+
+  @override
+  String shouldBeBiggerOrEqualThanValidationMessage(_, __) => "empty val msg";
+
+  @override
+  String shouldBeBiggerThanValidationMessage(_, __) => "empty val msg";
+
+  @override
+  String shouldBeFalseValidationMessage(_, __) => "empty val msg";
+
+  @override
+  String shouldBeInBetweenDatesValidationMessage(_, __) => "empty val msg";
+
+  @override
+  String shouldBeSmallerOrEqualThanValidationMessage(_, __) => "empty val msg";
+
+  @override
+  String shouldBeSmallerThanValidationMessage(_, __) => "empty val msg";
+
+  @override
+  String shouldBeTrueValidationMessage(_, __) => "empty val msg";
+
+  @override
+  String shouldNotBeEmptyOrWhiteSpaceValidationMessage(_, __) =>
+      "empty val msg";
+
+  @override
+  String shouldNotBeEmptyValidationMessage(_, __) => "empty val msg";
+
+  @override
+  String shouldNotBeNullValidationMessage(_, __) => "empty val msg";
 }

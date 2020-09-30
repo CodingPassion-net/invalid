@@ -4,7 +4,7 @@
 - **Reusing validators is easy** (difficult with Flutter Form)
 - **Combining validators is easy** (difficult with Flutter Form)
 - **Prebuilt validators** (Flutter ships without validators)
-- **Form validators allow validation across multiple forms** (Flutter ships without form validators)
+- **Form validators allow validation across multiple fields** (Flutter ships without form validators)
 - **Positive validation** (not possible with Flutter Form)
 - **Specify default validation messages for validators** (not possible with Flutter Form)
 - **Combining validation messages of different fields** (not possible with Flutter Form)
@@ -73,7 +73,7 @@ If you are using localization, you need to do this, somewhere where you have acc
 If you are not using localization, you can initialize for example in the `main` function.
 
 ``` dart
-ValidationConfiguration<DefaultValidationMessagesLocalization>.initialize(MyDefaultValidationMessagesLocalization(loc)]);
+ValidationConfiguration<DefaultValidationMessagesLocalization>.initialize(defaultValidationMessages: MyDefaultValidationMessagesLocalization(loc)]);
 ```
 
 **Step 3**: With `ValidationCapability` you can add validation to all of your input widgets like for example `TextField`, `Slider` or even `Checkbox`.
@@ -253,11 +253,60 @@ ValidationMessages<ChangePasswordForm>(
 )
 ```
 
-### Field Validator
+## Validators
 
+For every validator you can specify a translatable default message. But often you just need something customized. That's why there is the `buildErrorMessage` callback, where you can build your custom validation message. There you have access to the current validator, either a form or a field validator and their parameters.
+
+You can reuse any validator by assigning it to a variable:
+``` dart
+var weightValidator = ShouldBeBetweenValidator(
+	min: 3,
+	max: 5,
+	buildErrorMessage: (validator, field) =>
+		"You should weigh between ${validator.min} and ${validator.min}. 
+		 Your current weight is ${field.value}. Fieldname: ${field.fieldName}",
+)
+```
+
+### Field Validators
+
+Field validators only validate one value (the field).
+
+For field validators you have also access to the field, to retrieve the `fieldName` and the `value` within the `buildErrorMessage` callback.
+
+``` dart
+ShouldBeBetweenValidator(
+	min: 3,
+	max: 5,
+	buildErrorMessage: (validator, field) =>
+		"You should weigh between ${validator.min} and ${validator.min}. 
+		 Your current weight is ${field.value}. Fieldname: ${field.fieldName}",
+)
+```
+
+### Form Validators
+Form validators can validate across all the fields in the form.
+
+In the `buildErrorMessage` callback for form validators you have access to all the fields of the form, again to retrieve `fieldName` and `value` of any field.
+
+``` dart
+ShouldBeEqualFormValidator(
+	buildErrorMessage: (validator, fields) =>
+		"${fields.findByFieldKey(ChangePasswordForm.NewPasswordField).fieldName} must be equal to ${fields.findByFieldKey(ChangePasswordForm.NewPasswordFieldConfirmation).fieldName}",
+	keysOfFieldsWhichShouldBeEqual: [
+		ChangePasswordForm.NewPasswordField, 
+		ChangePasswordForm.NewPasswordFieldConfirmation
+	]
+)
+```
 
 # Troubleshooting
-- Types?
+- `ValidationForm`, `ValidationCapability`, `ValidationMessages` always need to have the type of the form key passed as a type parameter. Maybe you have this forgotton?
 
 # Suggestions
-- Strong typing
+- We strongly suggest to activate strong typing and disable implicit dynamic in your `analysis_options.yaml`
+
+``` yaml
+implicit-casts: false
+implicit-dynamic: false
+```

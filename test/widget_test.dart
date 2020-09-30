@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:invalid/invalid.dart';
-import 'invalid_test.dart';
 
 void main() {
   setUpAll(() {
-    ValidationConfiguration<EmptyDefaultValidationMessages>.initialize(
-        EmptyDefaultValidationMessages());
+    ValidationConfiguration<EmptyDefaultValidationMessages>.initialize();
   });
 
   Future<void> setUpValidationForm(WidgetTester tester,

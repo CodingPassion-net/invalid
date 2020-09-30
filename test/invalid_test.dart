@@ -9,8 +9,7 @@ Matcher resultHasMessage(String message) => isA<ValidationResult<FormKeys>>()
     .having((result) => result.message, "", message);
 
 void main() {
-  ValidationConfiguration<EmptyDefaultValidationMessages>.initialize(
-      EmptyDefaultValidationMessages());
+  ValidationConfiguration<EmptyDefaultValidationMessages>.initialize();
 
   group('Validation', () {
     group('FormValidator', () {
@@ -239,7 +238,6 @@ void main() {
       test('Validator allowNull should also be applied if using typeconverter',
           () {
         ValidationConfiguration<EmptyDefaultValidationMessages>.initialize(
-            EmptyDefaultValidationMessages(),
             typeConverter: [
               DummyForTypeConverterReturnsNullToDoubleTypeConverter()
             ]);
@@ -259,7 +257,6 @@ void main() {
             throwsA(isA<UnsupportedError>()));
 
         ValidationConfiguration<EmptyDefaultValidationMessages>.initialize(
-            EmptyDefaultValidationMessages(),
             typeConverter: [
               DummyForTypeConverterReturnsNullToStringTypeConverter()
             ]);
@@ -550,47 +547,4 @@ class DummyForTypeConverterReturnsNullToDoubleTypeConverter
     }
     return convertedDouble;
   }
-}
-
-class EmptyDefaultValidationMessages
-    extends DefaultValidationMessagesLocalization {
-  @override
-  String shouldBeEqualValidationMessage(_, __) => "empty val msg";
-
-  @override
-  String shouldBeBetweenOrEqualValidationMessage(_, __) => "empty val msg";
-
-  @override
-  String shouldBeBetweenValidationMessage(_, __) => "empty val msg";
-
-  @override
-  String shouldBeBiggerOrEqualThanValidationMessage(_, __) => "empty val msg";
-
-  @override
-  String shouldBeBiggerThanValidationMessage(_, __) => "empty val msg";
-
-  @override
-  String shouldBeFalseValidationMessage(_, __) => "empty val msg";
-
-  @override
-  String shouldBeInBetweenDatesValidationMessage(_, __) => "empty val msg";
-
-  @override
-  String shouldBeSmallerOrEqualThanValidationMessage(_, __) => "empty val msg";
-
-  @override
-  String shouldBeSmallerThanValidationMessage(_, __) => "empty val msg";
-
-  @override
-  String shouldBeTrueValidationMessage(_, __) => "empty val msg";
-
-  @override
-  String shouldNotBeEmptyOrWhiteSpaceValidationMessage(_, __) =>
-      "empty val msg";
-
-  @override
-  String shouldNotBeEmptyValidationMessage(_, __) => "empty val msg";
-
-  @override
-  String shouldNotBeNullValidationMessage(_, __) => "empty val msg";
 }

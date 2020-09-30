@@ -39,7 +39,8 @@ class _MyHomePageState extends State<MyHomePage> {
         enabled: true,
         formValidators: [
           ShouldBeEqualFormValidator(
-              buildErrorMessage: (validator, fields) => "should be equal",
+              buildErrorMessage: (validator, fields) =>
+                  "${fields.findByFieldKey(FormKeys.Key1).fieldName} must be equal to ${fields.findByFieldKey(FormKeys.Key1).fieldName}",
               keysOfFieldsWhichShouldBeEqual: [FormKeys.Key1, FormKeys.Key2])
         ],
         child: Column(
@@ -49,7 +50,12 @@ class _MyHomePageState extends State<MyHomePage> {
               validationCapability: TextValidationCapability<FormKeys>(
                   validationKey: FormKeys.Key1,
                   validators: [
-                    ShouldBeBetweenValidator(min: 3, max: 5),
+                    ShouldBeBetweenValidator(
+                      min: 3,
+                      max: 5,
+                      buildErrorMessage: (validator, field) =>
+                          "You should weigh between ${validator.min} and ${validator.min}. Your current weight is ${field.value}",
+                    ),
                     ShouldNotBeEmptyValidator(
                       buildErrorMessage: (validator, field) =>
                           "should not be empty (Key 1)",
