@@ -13,7 +13,16 @@
 
 # Set up
 
-**Step 1**: Implement the abstract class `DefaultValidationMessages`, and provide default validation messages for the validators you want to use.
+**Step 1**: Add dependency to your pubspec.yaml:
+
+``` yaml
+invalid:
+  git:
+    url: https://github.com/CodingPassion-net/invalid.git
+    # ref: a078afc709cde12a1f7f89c88f34c85b43da0895 // You can pick a specific commit or branch
+```
+
+**Step 2**: Implement the abstract class `DefaultValidationMessages`, and provide default validation messages for the validators you want to use.
 
 ``` dart
 	class MyDefaultValidationMessagesLocalization implements DefaultValidationMessagesLocalization {
@@ -66,7 +75,7 @@ class DemoLocalizations {
 }
 ```
 
-**Step 2**: Initialize the the library like following. 
+**Step 3**: Initialize the the library like following. 
 
 If you are using localization, you need to initialize, somewhere where you have access to `context` and below `WidgetsApp` in the widget tree. For example in `initState` of a descendent widget of `WidgetsApp`.
 
@@ -76,7 +85,7 @@ If you are not using localization, you can initialize for example in the `main` 
 ValidationConfiguration<DefaultValidationMessagesLocalization>.initialize(defaultValidationMessages: MyDefaultValidationMessagesLocalization(loc)]);
 ```
 
-**Step 3**: With `ValidationCapability` you can add validation to all of your input widgets like for example `TextField`, `Slider` or even `Checkbox`.
+**Step 4**: With `ValidationCapability` you can add validation to all of your input widgets like for example `TextField`, `Slider` or even `Checkbox`.
 
 For `TextField` there exists a prebuilt `TextValidationCapability`:
 
@@ -109,7 +118,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
 For all other input widgets you need to use `ValidationCapability`.
 
-**Step 4 (optional)**:
+**Step 5 (optional)**:
 It's suggested to also add a custom validation messages widget, which can be styled in the design of your app and resued across the application.
 
 ``` dart
