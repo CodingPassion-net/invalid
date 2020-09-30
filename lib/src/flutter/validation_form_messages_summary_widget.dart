@@ -14,8 +14,8 @@ class ValidationFormMessagesSummary<FormKeyType> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FormValidationBloc<FormKeyType>,
-        FormValidation<FormKeyType>>(builder: (context, state) {
+    return BlocBuilder<FormValidationCubit<FormKeyType>,
+        FormValidationState<FormKeyType>>(builder: (context, state) {
       return validationMessagesBuilder(showOnlyFormValidatorMessages
           ? state.formValidatorValidationMessages
           : state.validationMessages);

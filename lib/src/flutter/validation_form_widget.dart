@@ -3,12 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:invalid/invalid.dart';
 
 class ValidationFormWidget<KeyType> extends StatelessWidget {
-  final FormValidationBloc parentValidationBloc;
+  final FormValidationCubit parentValidationBloc;
   final Iterable<Field<KeyType>> fields;
   final Iterable<FormValidator<KeyType, FormValidator>> formValidators;
-  final Function(FormValidation<KeyType>) onFormTurnedValid;
-  final Function(FormValidation<KeyType>) onFormTurnedInValid;
-  final Function(FormValidation<KeyType>) onUpdate;
+  final Function(FormValidationState<KeyType>) onFormTurnedValid;
+  final Function(FormValidationState<KeyType>) onFormTurnedInValid;
+  final Function(FormValidationState<KeyType>) onUpdate;
   final Widget child;
   final bool enabled;
   const ValidationFormWidget(
@@ -25,17 +25,18 @@ class ValidationFormWidget<KeyType> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<FormValidationBloc<KeyType>>(
-      create: (BuildContext context) => FormValidationBloc<KeyType>(
-          FormValidation<KeyType>(
+    return BlocProvider<FormValidationCubit<KeyType>>(
+      create: (BuildContext context) => FormValidationCubit<KeyType>(
+          FormValidationState<KeyType>(
               enabled: enabled, fields: fields, formValidators: formValidators),
           parentFormValidationBloc: parentValidationBloc),
-      child: BlocListener<FormValidationBloc<KeyType>, FormValidation<KeyType>>(
+      child: BlocListener<FormValidationCubit<KeyType>,
+          FormValidationState<KeyType>>(
         listener: (_, state) {
           return onUpdate?.call(state);
         },
-        child:
-            BlocListener<FormValidationBloc<KeyType>, FormValidation<KeyType>>(
+        child: BlocListener<FormValidationCubit<KeyType>,
+            FormValidationState<KeyType>>(
           listenWhen: (previousState, currentState) =>
               onFormTurnedValid != null &&
               !previousState.isValid &&
@@ -43,8 +44,8 @@ class ValidationFormWidget<KeyType> extends StatelessWidget {
           listener: (BuildContext context, state) {
             onFormTurnedValid?.call(state);
           },
-          child: BlocListener<FormValidationBloc<KeyType>,
-              FormValidation<KeyType>>(
+          child: BlocListener<FormValidationCubit<KeyType>,
+              FormValidationState<KeyType>>(
             child: child,
             listenWhen: (previousState, currentState) =>
                 onFormTurnedInValid != null &&
@@ -60,25 +61,25 @@ class ValidationFormWidget<KeyType> extends StatelessWidget {
   }
 }
 
-FormValidationBloc<KeyType> getForm<KeyType>(BuildContext context) {
-  return BlocProvider.of<FormValidationBloc<KeyType>>(context);
+FormValidationCubit<KeyType> getForm<KeyType>(BuildContext context) {
+  return BlocProvider.of<FormValidationCubit<KeyType>>(context);
 }
 
-FormValidationBloc<KeyType> addFieldAndGetForm<KeyType>(
+FormValidationCubit<KeyType> addFieldAndGetForm<KeyType>(
     Iterable<FieldValidator<dynamic, KeyType, dynamic>> validators,
     KeyType key,
     BuildContext context,
     {String fieldName}) {
   if (key == null) return null;
   var formValidationBloc =
-      BlocProvider.of<FormValidationBloc<KeyType>>(context);
+      BlocProvider.of<FormValidationCubit<KeyType>>(context);
   formValidationBloc.addField(
       Field<KeyType>(key: key, validators: validators, fieldName: fieldName));
   return formValidationBloc;
 }
 
 class ValidationCapability<KeyType> {
-  FormValidationBloc<KeyType> _formValidationBloc;
+  FormValidationCubit<KeyType> _formValidationBloc;
   final KeyType validationKey;
   final List<FieldValidator<dynamic, KeyType, dynamic>> _validators;
   final String fieldName;

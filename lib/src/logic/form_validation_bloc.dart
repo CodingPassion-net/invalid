@@ -4,9 +4,9 @@ import 'package:equatable/equatable.dart';
 import 'type_converter.dart';
 import 'validators.dart';
 
-class FormValidationBloc<KeyType> extends Cubit<FormValidation<KeyType>> {
-  FormValidationBloc(FormValidation initialState,
-      {FormValidationBloc parentFormValidationBloc})
+class FormValidationCubit<KeyType> extends Cubit<FormValidationState<KeyType>> {
+  FormValidationCubit(FormValidationState initialState,
+      {FormValidationCubit parentFormValidationBloc})
       : super(initialState) {
     if (parentFormValidationBloc != null) {
       parentFormValidationBloc.listen((parentFormValidationState) {
@@ -46,7 +46,7 @@ class EnableValidationEvent extends FormValidationEvent {}
 
 class DisableValidationEvent extends FormValidationEvent {}
 
-class FormValidation<KeyType> extends Equatable {
+class FormValidationState<KeyType> extends Equatable {
   final Iterable<Field<KeyType>> fields;
   final Iterable<FormValidator<KeyType, FormValidator>> formValidators;
   final bool enabled;
@@ -90,14 +90,14 @@ class FormValidation<KeyType> extends Equatable {
           .map((validationResult) => validationResult.message)
           .toList();
 
-  FormValidation(
+  FormValidationState(
       {Iterable<Field<KeyType>> fields,
       Iterable<FormValidator<KeyType, FormValidator>> formValidators,
       this.enabled = false})
       : fields = (fields ?? []).distinctBy((field) => field.key).toList(),
         formValidators = formValidators ?? [];
 
-  FormValidation<KeyType> updateField(KeyType fieldKey, dynamic newValue) {
+  FormValidationState<KeyType> updateField(KeyType fieldKey, dynamic newValue) {
     return copyWith(
         fields: fields
             .map((field) => field.key == fieldKey
@@ -108,16 +108,16 @@ class FormValidation<KeyType> extends Equatable {
             .toList());
   }
 
-  FormValidation<KeyType> addField(Field<KeyType> newField) {
+  FormValidationState<KeyType> addField(Field<KeyType> newField) {
     return copyWith(fields: [...fields, newField]);
   }
 
-  FormValidation<KeyType> copyWith({
+  FormValidationState<KeyType> copyWith({
     Iterable<Field<KeyType>> fields,
     Iterable<FormValidator<KeyType, FormValidator>> formValidators,
     bool enabled,
   }) {
-    return FormValidation<KeyType>(
+    return FormValidationState<KeyType>(
         fields: fields ?? this.fields,
         formValidators: formValidators ?? this.formValidators,
         enabled: enabled ?? this.enabled);

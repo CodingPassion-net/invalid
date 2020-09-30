@@ -15,24 +15,24 @@ void main() {
 
   group('FormValidationBloc', () {
     // ignore: close_sinks
-    FormValidationBloc<dynamic> parentFormValidationBloc =
-        FormValidationBloc<dynamic>(FormValidation());
+    FormValidationCubit<dynamic> parentFormValidationBloc =
+        FormValidationCubit<dynamic>(FormValidationState());
 
-    blocTest<FormValidationBloc, FormValidation>(
+    blocTest<FormValidationCubit, FormValidationState>(
         "If parent validation Bloc enables validation, validation for the current bloc should be enabled to",
         build: () {
-          return FormValidationBloc<dynamic>(FormValidation(),
+          return FormValidationCubit<dynamic>(FormValidationState(),
               parentFormValidationBloc: parentFormValidationBloc);
         },
         wait: Duration(milliseconds: 50),
         act: (_) async => parentFormValidationBloc.enableValidation(),
-        expect: [FormValidation(enabled: true)]);
+        expect: [FormValidationState(enabled: true)]);
   });
 
   group('Validation', () {
     group('FormValidator', () {
       test('form is valid if all form fields are valid', () {
-        var sut = FormValidation<FormKeys>(fields: [
+        var sut = FormValidationState<FormKeys>(fields: [
           Field<FormKeys>(
               key: FormKeys.Key1,
               validators: [AlwaysTrueValidator(), AlwaysTrueValidator()]),
@@ -44,7 +44,7 @@ void main() {
       });
 
       test('form is invalid if at least one form field is invalid', () {
-        var sut = FormValidation<FormKeys>(fields: [
+        var sut = FormValidationState<FormKeys>(fields: [
           Field<FormKeys>(
               key: FormKeys.Key1,
               validators: [AlwaysTrueValidator(), AlwaysFalseValidator()]),
@@ -56,7 +56,7 @@ void main() {
       });
 
       test('form is valid if all form validators are valid', () {
-        var sut = FormValidation<FormKeys>(formValidators: [
+        var sut = FormValidationState<FormKeys>(formValidators: [
           AlwaysTrueFormValidator<FormKeys>(),
           AlwaysTrueFormValidator<FormKeys>()
         ]);
@@ -64,7 +64,7 @@ void main() {
       });
 
       test('form is invalid if any form validator is invalid', () {
-        var sut = FormValidation<FormKeys>(formValidators: [
+        var sut = FormValidationState<FormKeys>(formValidators: [
           AlwaysFalseFormValidator<FormKeys>(),
           AlwaysTrueFormValidator<FormKeys>()
         ]);
@@ -72,9 +72,9 @@ void main() {
       });
 
       group('test validation messages', () {
-        FormValidation<FormKeys> sut;
+        FormValidationState<FormKeys> sut;
         setUp(() {
-          sut = FormValidation<FormKeys>(enabled: true, fields: [
+          sut = FormValidationState<FormKeys>(enabled: true, fields: [
             Field<FormKeys>(key: FormKeys.Key1, validators: [
               AlwaysTrueValidator(),
               AlwaysFalseValidator(
@@ -132,7 +132,7 @@ void main() {
       });
 
       test('the right typeconverter should be picked for type conversion', () {
-        var sut = FormValidation<FormKeys>(fields: [
+        var sut = FormValidationState<FormKeys>(fields: [
           Field<FormKeys>(
               key: FormKeys.Key1,
               validators: [ShouldBeBiggerThanValidator(19)], //Validator double
@@ -142,7 +142,7 @@ void main() {
       });
 
       test('throw exception if the type convert not exists', () {
-        var sut = FormValidation<FormKeys>(fields: [
+        var sut = FormValidationState<FormKeys>(fields: [
           Field<FormKeys>(
               key: FormKeys.Key1,
               validators: [ShouldBeBiggerThanValidator(19)],
@@ -152,7 +152,7 @@ void main() {
       });
 
       test('updateField should update field', () {
-        var sut = FormValidation<FormKeys>(fields: [
+        var sut = FormValidationState<FormKeys>(fields: [
           Field<FormKeys>(
               key: FormKeys.Key1,
               validators: [ShouldBeTrueValidator()],
@@ -166,7 +166,7 @@ void main() {
       test(
           'adding multiple fields with the same key, should only add the first one',
           () {
-        var sut = FormValidation<FormKeys>(fields: [
+        var sut = FormValidationState<FormKeys>(fields: [
           Field<FormKeys>(
               key: FormKeys.Key1,
               validators: [ShouldBeTrueValidator()],
@@ -193,7 +193,7 @@ void main() {
         bool expectValid) {
       expect(1, 1);
       expect(
-          FormValidation<FormKeys>(fields: [
+          FormValidationState<FormKeys>(fields: [
             Field<FormKeys>(
                 key: FormKeys.Key1, validators: [validator], value: value),
           ]).isValid,
