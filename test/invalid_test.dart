@@ -75,42 +75,37 @@ void main() {
         });
 
         test(
-            'validationMessages should return all validation messages of invalid fields and invalid formValidators',
+            'validationMessagesOfKey should return all ValidationResults of invalid fields and invalid form validators, but only if they match the key',
             () {
-          expect(sut.validationMessages, [
-            'Validationmessage from Key1',
-            'Validationmessage from invalid validator',
-            'Validationmessage from Key3',
-            'Validationmessage from invalid form validator'
+          expect(
+              sut.invalidValidationResultsByKeys(
+                  [FormKeys.Key1, FormKeys.Key3]),
+              [
+                matchValidationResultWithMessage("Validationmessage from Key1"),
+                matchValidationResultWithMessage("Validationmessage from Key3"),
+              ]);
+        });
+
+        test(
+            'formValidatorValidationMessages should return only ValidationResults of invalid formValidators',
+            () {
+          expect(sut.invalidFormValidationResults, [
+            matchValidationResultWithMessage("Validationmessage from Key3"),
+            matchValidationResultWithMessage(
+                'Validationmessage from invalid form validator')
           ]);
         });
 
         test(
-            'validationMessagesOfKey should return all validation messages of invalid fields and invalid form validators, but only if they match the key',
-            () {
-          expect(sut.validationMessagesByKeys([FormKeys.Key1, FormKeys.Key3]), [
-            "Validationmessage from Key1",
-            "Validationmessage from Key3",
-          ]);
-        });
-
-        test(
-            'formValidatorValidationMessages should return only validation messages of invalid formValidators',
-            () {
-          expect(sut.formValidatorValidationMessages, [
-            "Validationmessage from Key3",
-            'Validationmessage from invalid form validator'
-          ]);
-        });
-
-        test(
-            'if validation is disabled no all validation messages should be empty',
+            'if validation is disabled no all ValidationResults should return empty list',
             () {
           sut = sut.copyWith(enabled: false);
-          expect(sut.validationMessages, []);
-          expect(sut.formValidatorValidationMessages, []);
+          expect(sut.invalidValidationResults, <ValidationResult>[]);
+          expect(sut.invalidFormValidationResults, <ValidationResult>[]);
           expect(
-              sut.validationMessagesByKeys([FormKeys.Key1, FormKeys.Key3]), []);
+              sut.invalidValidationResultsByKeys(
+                  [FormKeys.Key1, FormKeys.Key3]),
+              <ValidationResult>[]);
         });
       });
 
@@ -383,6 +378,10 @@ void main() {
   });
 }
 
+TypeMatcher<ValidationResult> matchValidationResultWithMessage(
+        String message) =>
+    isA<ValidationResult>().having((result) => result.message, "", message);
+
 enum FormKeys {
   Key1,
   Key2,
@@ -396,7 +395,7 @@ class AlwaysFalseValidator
   bool get allowNull => false;
 
   AlwaysFalseValidator(
-      {String Function(AlwaysFalseValidator val, String fieldName) errorMsg,
+      {String Function(AlwaysFalseValidator val, Field field) errorMsg,
       FormKeys key})
       : super(errorMsg ?? (_, __) => "Validationmessage from invalid validator",
             key);
@@ -410,7 +409,7 @@ class AlwaysFalseValidator
 class AlwaysTrueValidator
     extends FieldValidator<dynamic, FormKeys, AlwaysTrueValidator> {
   AlwaysTrueValidator(
-      {String Function(AlwaysTrueValidator val, String fieldName) errorMsg,
+      {String Function(AlwaysTrueValidator val, Field field) errorMsg,
       FormKeys key})
       : super(errorMsg ?? (_, __) => "asdf", key);
 
@@ -423,9 +422,12 @@ class AlwaysTrueValidator
 class AlwaysFalseFormValidator<KeyType>
     extends FormValidator<KeyType, AlwaysFalseFormValidator<KeyType>> {
   AlwaysFalseFormValidator(
-      {KeyType key, String Function(AlwaysFalseFormValidator val) errorMsg})
+      {KeyType key,
+      String Function(AlwaysFalseFormValidator val, Iterable<Field> fields)
+          errorMsg})
       : super(
-            errorMsg ?? (_) => "Validationmessage from invalid form validator",
+            errorMsg ??
+                (_, __) => "Validationmessage from invalid form validator",
             key: key);
 
   @override
@@ -438,9 +440,12 @@ class AlwaysTrueFormValidator<KeyType>
     extends FormValidator<KeyType, AlwaysTrueFormValidator<KeyType>> {
   AlwaysTrueFormValidator(
       {KeyType key,
-      String Function(AlwaysTrueFormValidator<KeyType> val) errorMsg})
+      String Function(
+              AlwaysTrueFormValidator<KeyType> val, Iterable<Field> fields)
+          errorMsg})
       : super(
-            errorMsg ?? (_) => "Validationmessage from invalid form validator",
+            errorMsg ??
+                (_, __) => "Validationmessage from invalid form validator",
             key: key);
 
   @override
@@ -466,10 +471,12 @@ class DummyForTypeConverterReturnsNullToDoubleTypeConverter
   @override
   double canConvert(DummyForTypeConverterReturnsNull inputType) {
     if (inputType.test == null) return null;
-    var convertedDouble;
+    double convertedDouble;
     try {
-      convertedDouble = NumberFormat().parse(inputType.test);
+      convertedDouble = NumberFormat().parse(inputType.test) as double;
     } on FormatException catch (_) {
+      return null;
+    } on TypeError catch (_) {
       return null;
     }
     return convertedDouble;
@@ -478,7 +485,7 @@ class DummyForTypeConverterReturnsNullToDoubleTypeConverter
 
 class EmptyDefaultValidationMessages extends DefaultValidationMessages {
   @override
-  String shouldBeEqualValidationMessage(_) => "empty val msg";
+  String shouldBeEqualValidationMessage(_, __) => "empty val msg";
 
   @override
   String shouldBeBetweenOrEqualValidationMessage(_, __) => "empty val msg";

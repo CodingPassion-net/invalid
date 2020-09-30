@@ -13,8 +13,7 @@ class Field<KeyType> extends Equatable {
       validationResults.every((validationResult) => validationResult.isValid);
 
   Iterable<ValidationResult<KeyType>> get validationResults => validators
-      .map((validator) =>
-          validator.validate(value, fieldName).copyWith(fieldKey: key))
+      .map((validator) => validator.validate(this).copyWith(fieldKey: key))
       .toList();
 
   Field(
@@ -52,10 +51,12 @@ abstract class TypeConverter<InputType, OutputType> {
 class StringDoubleTypeConverter extends TypeConverter<String, double> {
   @override
   double canConvert(String inputType) {
-    var convertedDouble;
+    double convertedDouble;
     try {
-      convertedDouble = NumberFormat().parse(inputType);
+      convertedDouble = NumberFormat().parse(inputType) as double;
     } on FormatException catch (_) {
+      return null;
+    } on TypeError catch (_) {
       return null;
     }
     return convertedDouble;

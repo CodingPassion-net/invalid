@@ -51,7 +51,7 @@ abstract class FieldValidator<
     KeyType,
     TFieldValidator extends FieldValidator<TypeOfValidatedValue, KeyType,
         TFieldValidator>> extends Validator<KeyType> {
-  final String Function(TFieldValidator validator, String fieldName)
+  final String Function(TFieldValidator validator, Field<KeyType> field)
       buildErrorMessage;
 
   bool get allowNull => true;
@@ -60,27 +60,27 @@ abstract class FieldValidator<
 
   TypeOfValidatedValue parseValue(dynamic value) =>
       ValidationConfiguration.instance()
-          .getTypeConverter<TypeOfValidatedValue>(value.runtimeType)
+          .getTypeConverter<TypeOfValidatedValue>(value.runtimeType as Type)
           .canConvert(value);
 
-  ValidationResult<KeyType> validate(dynamic value, [String fieldName]) {
-    if (value == null)
-      return createValidationResult(null, allowNull, fieldName);
-    if (value.runtimeType == TypeOfValidatedValue)
-      return createValidationResult(value as TypeOfValidatedValue,
-          isValid(value as TypeOfValidatedValue), fieldName);
-    var parsedValue = parseValue(value);
+  ValidationResult<KeyType> validate(Field<KeyType> field) {
+    if (field.value == null)
+      return createValidationResult(null, allowNull, field);
+    if (field.value.runtimeType == TypeOfValidatedValue)
+      return createValidationResult(field.value as TypeOfValidatedValue,
+          isValid(field.value as TypeOfValidatedValue), field);
+    var parsedValue = parseValue(field.value);
     return createValidationResult(parsedValue,
-        parsedValue == null ? allowNull : isValid(parsedValue), fieldName);
+        parsedValue == null ? allowNull : isValid(parsedValue), field);
   }
 
   @protected
   bool isValid(TypeOfValidatedValue value) => true;
 
   ValidationResult<KeyType> createValidationResult(
-      TypeOfValidatedValue value, bool isValid, String fieldName) {
+      TypeOfValidatedValue value, bool isValid, Field<KeyType> field) {
     return ValidationResult<KeyType>(
-        isValid, buildErrorMessage(this, fieldName), false,
+        isValid, buildErrorMessage(this as TFieldValidator, field), false,
         validatorKey: key);
   }
 }
@@ -89,13 +89,15 @@ abstract class FieldValidator<
 abstract class FormValidator<KeyType,
         TFormValidator extends FormValidator<KeyType, TFormValidator>>
     extends Validator<KeyType> {
-  final String Function(TFormValidator validator) buildErrorMessage;
+  final String Function(
+          TFormValidator validator, Iterable<Field<KeyType>> fields)
+      buildErrorMessage;
 
   FormValidator(this.buildErrorMessage, {KeyType key}) : super(key);
 
   ValidationResult<KeyType> validate(Iterable<Field<KeyType>> fields) {
-    return ValidationResult<KeyType>(
-        isValid(fields), buildErrorMessage(this), true,
+    return ValidationResult<KeyType>(isValid(fields),
+        buildErrorMessage(this as TFormValidator, fields), true,
         formValidatorKey: key);
   }
 
@@ -110,7 +112,8 @@ class ShouldBeEqualFormValidator<KeyType>
 
   ShouldBeEqualFormValidator(
       {@required this.keysOfFieldsWhichShouldBeEqual,
-      String Function(ShouldBeEqualFormValidator<KeyType> validator)
+      String Function(ShouldBeEqualFormValidator<KeyType> validator,
+              Iterable<Field> fields)
           buildErrorMessage,
       KeyType key})
       : super(
@@ -142,16 +145,20 @@ class MultiFieldDateValidator<KeyType>
       {@required this.dayFieldKey,
       @required this.monthFieldKey,
       @required this.yearFieldKey,
-      String Function(ShouldBeEqualFormValidator<KeyType> validator)
+      String Function(MultiFieldDateValidator<KeyType> validator,
+              Iterable<Field> fields)
           buildErrorMessage,
       KeyType key})
-      : super(buildErrorMessage ?? (_) => null, key: key);
+      : super(
+            buildErrorMessage ??
+                (MultiFieldDateValidator<KeyType> _, __) => null,
+            key: key);
 
   @override
   bool isValid(Iterable<Field<KeyType>> fields) {
-    var dayValue = fields.findByFieldKey(dayFieldKey)?.value;
-    var monthValue = fields.findByFieldKey(monthFieldKey)?.value;
-    var yearValue = fields.findByFieldKey(yearFieldKey)?.value;
+    String dayValue = fields.findByFieldKey(dayFieldKey)?.value as String;
+    String monthValue = fields.findByFieldKey(monthFieldKey)?.value as String;
+    String yearValue = fields.findByFieldKey(yearFieldKey)?.value as String;
 
     var dayInput = dayValue == null ? null : int.tryParse(dayValue);
     var monthInput = monthValue == null ? null : int.tryParse(monthValue);
@@ -173,34 +180,19 @@ class MultiFieldDateValidator<KeyType>
 }
 
 // Field Validators ----------------------------------------------
-// abstract class BaseCompareFieldValidator<
-//     T,
-//     KeyType,
-//     TFieldValidator extends BaseCompareFieldValidator<T, KeyType,
-//         TFieldValidator>> extends FieldValidator<T, KeyType, TFieldValidator> {
-//   final T compareValue;
-
-//   BaseCompareFieldValidator(
-//       this.compareValue,
-//       String Function(TFieldValidator validator, String fieldName)
-//           buildErrorMessage,
-//       KeyType key)
-//       : super(buildErrorMessage, key);
-// }
-
-abstract class BaseShouldNotBeNullValidator<
-        TypeOfValidatedValue,
-        KeyType,
-        TFieldValidator extends BaseShouldNotBeNullValidator<
-            TypeOfValidatedValue, KeyType, TFieldValidator>>
-    extends FieldValidator<TypeOfValidatedValue, KeyType, TFieldValidator> {
+class ShouldNotBeNullValidator<TypeOfValidatedValue, KeyType>
+    extends FieldValidator<TypeOfValidatedValue, KeyType,
+        ShouldNotBeNullValidator<TypeOfValidatedValue, KeyType>> {
   @override
   bool get allowNull => false;
 
-  BaseShouldNotBeNullValidator(
-      String Function(TFieldValidator buildErrorMessage, String fieldName)
+  ShouldNotBeNullValidator(
+      {String Function(
+              ShouldNotBeNullValidator<TypeOfValidatedValue, KeyType>
+                  buildErrorMessage,
+              Field field)
           buildErrorMessage,
-      KeyType key)
+      KeyType key})
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
@@ -219,52 +211,11 @@ abstract class BaseShouldNotBeNullValidator<
   }
 }
 
-class ShouldNotBeNullValidator<TypeOfValidatedValue, KeyType>
-    extends FieldValidator<TypeOfValidatedValue, KeyType,
-        ShouldNotBeNullValidator<TypeOfValidatedValue, KeyType>> {
-  @override
-  bool get allowNull => false;
-
-  ShouldNotBeNullValidator(
-      {String Function(
-              ShouldNotBeNullValidator<TypeOfValidatedValue, KeyType>
-                  buildErrorMessage,
-              String fieldName)
-          buildErrorMessage,
-      KeyType key})
-      : super(
-            buildErrorMessage ??
-                ValidationConfiguration.instance()
-                    .defaultValidationMessages
-                    .shouldNotBeNullValidationMessage,
-            key);
-}
-
-//class ShouldNotBeEmptyValidator<KeyType> extends BaseShouldNotBeNullValidator<
-//    String, KeyType, ShouldNotBeEmptyValidator<KeyType>> {
-//  ShouldNotBeEmptyValidator(
-//      {String Function(
-//              ShouldNotBeEmptyValidator<KeyType> validator, String fieldName)
-//          buildErrorMessage,
-//      KeyType key})
-//      : super(
-//            buildErrorMessage ??
-//                ValidationConfiguration.instance()
-//                    .defaultValidationMessages
-//                    .shouldNotBeEmptyValidationMessage,
-//            key);
-//
-//  @override
-//  bool isValid(String value) {
-//    return super.isValid(value) && value.isNotEmpty;
-//  }
-//}
-
 class ShouldNotBeEmptyValidator<KeyType> extends FieldValidator<String, KeyType,
     ShouldNotBeEmptyValidator<KeyType>> {
   ShouldNotBeEmptyValidator(
       {String Function(
-              ShouldNotBeEmptyValidator<KeyType> validator, String fieldName)
+              ShouldNotBeEmptyValidator<KeyType> validator, Field field)
           buildErrorMessage,
       KeyType key})
       : super(
@@ -284,7 +235,7 @@ class ShouldNotBeEmptyOrWhiteSpaceValidator<KeyType> extends FieldValidator<
     String, KeyType, ShouldNotBeEmptyOrWhiteSpaceValidator<KeyType>> {
   ShouldNotBeEmptyOrWhiteSpaceValidator(
       {String Function(ShouldNotBeEmptyOrWhiteSpaceValidator<KeyType> validator,
-              String fieldName)
+              Field field)
           buildErrorMessage,
       KeyType key})
       : super(
@@ -303,8 +254,7 @@ class ShouldNotBeEmptyOrWhiteSpaceValidator<KeyType> extends FieldValidator<
 class ShouldBeTrueValidator<KeyType>
     extends FieldValidator<bool, KeyType, ShouldBeTrueValidator<KeyType>> {
   ShouldBeTrueValidator(
-      {String Function(
-              ShouldBeTrueValidator<KeyType> validator, String fieldName)
+      {String Function(ShouldBeTrueValidator<KeyType> validator, Field field)
           buildErrorMessage,
       KeyType key})
       : super(
@@ -323,8 +273,7 @@ class ShouldBeTrueValidator<KeyType>
 class ShouldBeFalseValidator<KeyType>
     extends FieldValidator<bool, KeyType, ShouldBeFalseValidator<KeyType>> {
   ShouldBeFalseValidator(
-      {String Function(
-              ShouldBeFalseValidator<KeyType> validator, String fieldName)
+      {String Function(ShouldBeFalseValidator<KeyType> validator, Field field)
           buildErrorMessage,
       KeyType key})
       : super(
@@ -347,7 +296,7 @@ class ShouldInBetweenDatesValidator<KeyType> extends FieldValidator<DateTime,
 
   ShouldInBetweenDatesValidator(this.min, this.max,
       {String Function(
-              ShouldBeEqualFormValidator<KeyType> validator, String fieldName)
+              ShouldInBetweenDatesValidator<KeyType> validator, Field field)
           buildErrorMessage,
       KeyType key})
       : super(
@@ -370,8 +319,7 @@ class ShouldBeBiggerThanValidator<KeyType> extends FieldValidator<double,
   ShouldBeBiggerThanValidator(
     this.min, {
     KeyType key,
-    String Function(
-            ShouldBeEqualFormValidator<KeyType> validator, String fieldName)
+    String Function(ShouldBeBiggerThanValidator<KeyType> validator, Field field)
         buildErrorMessage,
   }) : super(
             buildErrorMessage ??
@@ -392,7 +340,7 @@ class ShouldBeSmallerThenValidator<KeyType> extends FieldValidator<double,
 
   ShouldBeSmallerThenValidator(this.max,
       {String Function(
-              ShouldBeEqualFormValidator<KeyType> validator, String fieldName)
+              ShouldBeSmallerThenValidator<KeyType> validator, Field field)
           buildErrorMessage,
       KeyType key})
       : super(
@@ -413,8 +361,8 @@ class ShouldBeBiggerOrEqualThenValidator<KeyType> extends FieldValidator<double,
   final double min;
 
   ShouldBeBiggerOrEqualThenValidator(this.min,
-      {String Function(
-              ShouldBeEqualFormValidator<KeyType> validator, String fieldName)
+      {String Function(ShouldBeBiggerOrEqualThenValidator<KeyType> validator,
+              Field field)
           buildErrorMessage,
       KeyType key})
       : super(
@@ -435,8 +383,8 @@ class ShouldBeSmallerOrEqualThenValidator<KeyType> extends FieldValidator<
   final double max;
 
   ShouldBeSmallerOrEqualThenValidator(this.max,
-      {String Function(
-              ShouldBeEqualFormValidator<KeyType> validator, String fieldName)
+      {String Function(ShouldBeSmallerOrEqualThenValidator<KeyType> validator,
+              Field field)
           buildErrorMessage,
       KeyType key})
       : super(
@@ -458,8 +406,7 @@ class ShouldBeBetweenValidator<KeyType>
   final double min;
 
   ShouldBeBetweenValidator(this.min, this.max,
-      {String Function(
-              ShouldBeEqualFormValidator<KeyType> validator, String fieldName)
+      {String Function(ShouldBeBetweenValidator<KeyType> validator, Field field)
           buildErrorMessage,
       KeyType key})
       : super(
@@ -481,8 +428,8 @@ class ShouldBeBetweenOrEqualValidator<KeyType> extends FieldValidator<double,
   final double min;
 
   ShouldBeBetweenOrEqualValidator(this.min, this.max,
-      {String Function(ShouldBeBetweenOrEqualValidator<KeyType> validator,
-              String fieldName)
+      {String Function(
+              ShouldBeBetweenOrEqualValidator<KeyType> validator, Field field)
           buildErrorMessage,
       KeyType key})
       : super(
@@ -491,20 +438,6 @@ class ShouldBeBetweenOrEqualValidator<KeyType> extends FieldValidator<double,
                     .defaultValidationMessages
                     .shouldBeBetweenOrEqualValidationMessage,
             key);
-
-  // ShouldBeBetweenOrEqualValidator.fromRange(DoubleRange range,
-  //     {String Function(ShouldBeBetweenOrEqualValidator<KeyType> validator,
-  //             String fieldName)
-  //         buildErrorMessage,
-  //     KeyType key})
-  //     : super(
-  //           range.min,
-  //           range.max,
-  //           buildErrorMessage ??
-  //               ValidationConfiguration.instance()
-  //                  .defaultValidationMessages
-  //                   .shouldBeBetweenOrEqualValidationMessage,
-  //           key);
 
   @override
   bool isValid(double value) {

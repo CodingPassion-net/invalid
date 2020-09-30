@@ -5,7 +5,8 @@ import 'type_converter.dart';
 import 'validators.dart';
 
 class FormValidationCubit<KeyType> extends Cubit<FormValidationState<KeyType>> {
-  FormValidationCubit(FormValidationState initialState) : super(initialState);
+  FormValidationCubit(FormValidationState<KeyType> initialState)
+      : super(initialState);
 
   void updateField(KeyType fieldKey, dynamic newValue) =>
       emit(state.updateField(fieldKey, newValue));
@@ -28,9 +29,11 @@ class FormValidationState<KeyType> extends Equatable {
   Iterable<ValidationResult<KeyType>> get _validationResults =>
       [..._fieldValidationResults, ..._formValidationResults];
 
+  /// Returns all [ValidationResult], when the form is enabled.
   Iterable<ValidationResult<KeyType>> get validationResults =>
       _validationResults.where((_) => enabled);
 
+  /// Returns all invalid [ValidationResult], when the form is enabled.
   Iterable<ValidationResult<KeyType>> get invalidValidationResults =>
       validationResults.where((validationResult) => !validationResult.isValid);
 
@@ -40,26 +43,18 @@ class FormValidationState<KeyType> extends Equatable {
   Iterable<ValidationResult<KeyType>> get _fieldValidationResults =>
       fields.expand((field) => field.validationResults);
 
-  Iterable<String> get validationMessages =>
-      _getValidationMessagesFromValidationResults(invalidValidationResults);
+  /// Returns all invalid [ValidationResult], when the form is enabled, by key.
+  Iterable<ValidationResult> invalidValidationResultsByKeys(
+          Iterable<KeyType> keys) =>
+      invalidValidationResults.where((validationResult) =>
+          keys.contains(validationResult.fieldKey) ||
+          keys.contains(validationResult.validatorKey) ||
+          keys.contains(validationResult.formValidatorKey));
 
-  Iterable<String> validationMessagesByKeys(Iterable<KeyType> keys) =>
-      _getValidationMessagesFromValidationResults(
-          invalidValidationResults.where((validationResult) =>
-              keys.contains(validationResult.fieldKey) ||
-              keys.contains(validationResult.validatorKey) ||
-              keys.contains(validationResult.formValidatorKey)));
-
-  Iterable<String> get formValidatorValidationMessages =>
-      _getValidationMessagesFromValidationResults(
-          invalidValidationResults.where(
-              (validationResult) => validationResult.isFormValidationResult));
-
-  Iterable<String> _getValidationMessagesFromValidationResults(
-          Iterable<ValidationResult<KeyType>> validationResults) =>
-      validationResults
-          .map((validationResult) => validationResult.message)
-          .toList();
+  /// Returns all invalid [ValidationResult], who are returned from FormValidators. Only when the form is enabled.
+  Iterable<ValidationResult> get invalidFormValidationResults =>
+      invalidValidationResults
+          .where((validationResult) => validationResult.isFormValidationResult);
 
   FormValidationState(
       {Iterable<Field<KeyType>> fields,
@@ -103,4 +98,10 @@ extension IterableExtensions<T> on Iterable<T> {
     var seenKeys = <dynamic>{};
     return where((item) => seenKeys.add(selector(item)));
   }
+}
+
+extension ValidationResultsExtension<KeyType>
+    on Iterable<ValidationResult<KeyType>> {
+  Iterable<String> get messages =>
+      map((validationResult) => validationResult.message).toList();
 }

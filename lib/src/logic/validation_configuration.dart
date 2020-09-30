@@ -6,7 +6,7 @@ class ValidationConfiguration<
   final List<TypeConverter> _typeConverter;
   final DefaultValidationMessagesType defaultValidationMessages;
 
-  static ValidationConfiguration _instance;
+  static ValidationConfiguration<DefaultValidationMessages> _instance;
 
   ValidationConfiguration._(
       this.defaultValidationMessages, this._typeConverter);
@@ -25,55 +25,56 @@ class ValidationConfiguration<
   TypeConverter<dynamic, OutputType> getTypeConverter<OutputType>(
       Type inputType) {
     return _typeConverter.firstWhere(
-        (converter) =>
-            converter.inputType == inputType &&
-            converter.outputType == OutputType,
-        orElse: () => throw UnsupportedError(
-            "Converter from Type $inputType, to $OutputType is missing"));
+            (converter) =>
+                converter.inputType == inputType &&
+                converter.outputType == OutputType,
+            orElse: () => throw UnsupportedError(
+                "Converter from Type $inputType, to $OutputType is missing"))
+        as TypeConverter<dynamic, OutputType>;
   }
 
   factory ValidationConfiguration.instance() {
     assert(_instance != null, "ValidationConfiguration is not initialized!");
-    return _instance;
+    return _instance as ValidationConfiguration<DefaultValidationMessagesType>;
   }
 }
 
 abstract class DefaultValidationMessages {
-  String shouldBeEqualValidationMessage(ShouldBeEqualFormValidator val);
+  String shouldBeEqualValidationMessage(
+      ShouldBeEqualFormValidator val, Iterable<Field> fields);
 
   String shouldBeBetweenOrEqualValidationMessage(
-      ShouldBeBetweenOrEqualValidator val, String fieldName);
+      ShouldBeBetweenOrEqualValidator val, Field field);
 
   String shouldBeBetweenValidationMessage(
-      ShouldBeBetweenValidator val, String fieldName);
+      ShouldBeBetweenValidator val, Field field);
 
   String shouldBeSmallerOrEqualThanValidationMessage(
-      ShouldBeSmallerOrEqualThenValidator val, String fieldName);
+      ShouldBeSmallerOrEqualThenValidator val, Field field);
 
   String shouldBeBiggerOrEqualThanValidationMessage(
-      ShouldBeBiggerOrEqualThenValidator val, String fieldName);
+      ShouldBeBiggerOrEqualThenValidator val, Field field);
 
   String shouldBeSmallerThanValidationMessage(
-      ShouldBeSmallerThenValidator val, String fieldName);
+      ShouldBeSmallerThenValidator val, Field field);
 
   String shouldBeBiggerThanValidationMessage(
-      ShouldBeBiggerThanValidator val, String fieldName);
+      ShouldBeBiggerThanValidator val, Field field);
 
   String shouldBeInBetweenDatesValidationMessage(
-      ShouldInBetweenDatesValidator val, String fieldName);
+      ShouldInBetweenDatesValidator val, Field field);
 
   String shouldBeFalseValidationMessage(
-      ShouldBeFalseValidator val, String fieldName);
+      ShouldBeFalseValidator val, Field field);
 
-  String shouldBeTrueValidationMessage(
-      ShouldBeTrueValidator val, String fieldName);
+  String shouldBeTrueValidationMessage(ShouldBeTrueValidator val, Field field);
 
   String shouldNotBeEmptyOrWhiteSpaceValidationMessage(
-      ShouldNotBeEmptyOrWhiteSpaceValidator val, String fieldName);
+      ShouldNotBeEmptyOrWhiteSpaceValidator val, Field field);
 
   String shouldNotBeEmptyValidationMessage(
-      ShouldNotBeEmptyValidator val, String fieldName);
+      ShouldNotBeEmptyValidator val, Field field);
 
   String shouldNotBeNullValidationMessage(
-      ShouldNotBeNullValidator val, String fieldName);
+      ShouldNotBeNullValidator val, Field field);
 }

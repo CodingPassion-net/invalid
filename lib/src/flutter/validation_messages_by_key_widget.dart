@@ -17,11 +17,12 @@ class ValidationMessagesByKeyWidget<FormKeyType> extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<FormValidationCubit<FormKeyType>,
         FormValidationState<FormKeyType>>(builder: (context, state) {
-      if (state.validationMessagesByKeys(keys).isEmpty) return Container();
+      if (state.invalidValidationResultsByKeys(keys).isEmpty)
+        return Container();
       return Padding(
         padding: padding,
         child: validationMessagesBuilder(
-          state.validationMessagesByKeys(keys),
+          state.invalidValidationResultsByKeys(keys).messages.toList(),
         ),
       );
     });

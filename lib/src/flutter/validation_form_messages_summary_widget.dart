@@ -16,9 +16,10 @@ class ValidationFormMessagesSummary<FormKeyType> extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<FormValidationCubit<FormKeyType>,
         FormValidationState<FormKeyType>>(builder: (context, state) {
-      return validationMessagesBuilder(showOnlyFormValidatorMessages
-          ? state.formValidatorValidationMessages
-          : state.validationMessages);
+      return validationMessagesBuilder((showOnlyFormValidatorMessages
+              ? state.invalidFormValidationResults.messages
+              : state.invalidValidationResults.messages)
+          .toList());
     });
   }
 }

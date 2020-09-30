@@ -102,7 +102,7 @@ class ValidationCapability<KeyType> {
         fieldName: fieldName);
   }
 
-  void addUpdateFieldEvent(newVal) {
+  void addUpdateFieldEvent(dynamic newVal) {
     if (_formValidationBloc == null) {
       throw UninitializedException<KeyType>();
     }
@@ -112,7 +112,7 @@ class ValidationCapability<KeyType> {
   ValidationCapability<KeyType> copyWith(
       {KeyType validationKey,
       List<FieldValidator<dynamic, KeyType, dynamic>> validators,
-      String fieldName}) {
+      Field field}) {
     return ValidationCapability<KeyType>(
         fieldName: fieldName ?? this.fieldName,
         validators: validators ?? [..._validators],
