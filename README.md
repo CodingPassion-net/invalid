@@ -11,6 +11,9 @@
 - **Display validation messages anywhere on the screen** (not possible with Flutter Form)
 - **Easy to test**
 
+# Example project
+https://github.com/CodingPassion-net/invalid/blob/master/example/lib/main.dart
+
 # Set up
 
 **Step 1**: Implement the abstract class `DefaultValidationMessages`, and provide default validation messages for the validators you want to use.
