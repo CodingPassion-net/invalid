@@ -40,7 +40,7 @@ invalid:
 You can also use it directly in your class where all your localized resources are defined. But be aware that using `Intl.message` with arguments means, that the parameter of the enclosing function of `Intl.message`, must be also passed to the `arg` parameter of `Intl.message` and all parameters must be of type `String`. This is a limitation of [Intl](https://api.flutter.dev/flutter/intl/Intl/message.html).
 
 ``` dart
-class DemoLocalizations {
+class DemoLocalizations extends DefaultValidationMessagesLocalization {
 	DemoLocalizations(this.localeName);
 
 	static Future<DemoLocalizations> load(Locale locale) {
@@ -155,7 +155,7 @@ class CustomValidationMessagesState<FormKeyType>
       filterByValidity: widget.filterByValidity,
       ignoreIfFormIsEnabled: widget.ignoreIfFormIsEnabled,
       onlyFirstValidationResult: widget.onlyFirstValidationResult,
-      validationMessagesBuilder: (validationMessages) {
+      validationResultsBuilder: (validationResults) {
 		
 		// Here you can style your widget as you want
         return Column(
