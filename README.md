@@ -146,7 +146,7 @@ class CustomValidationMessagesState<FormKeyType>
     extends State<CustomValidationMessages> {
   @override
   Widget build(BuildContext context) {
-    return ValidationMessages<FormKeyType>(
+    return ValidationResults<FormKeyType>(
       filterByKeys: widget.filterByKeys as List<FormKeyType>,
       filterByValidatorType: widget.filterByValidatorType,
       filterByValidity: widget.filterByValidity,
@@ -250,13 +250,13 @@ CustomValidationMessages<ChangePasswordForm>(
 If you want to show a list of password requirements and show the user which one he has already fulfilled and which one he still needs to fulfill. You can specify that validation messages for valid and invald validators are shown.
 
 ``` dart
-ValidationMessages<ChangePasswordForm>(
+ValidationResults<ChangePasswordForm>(
 	filterByValidity: ValidityFilter.ValidAndInvalid, // ValidityFilter.OnlyValid is also possible 
 	ignoreIfFormIsEnabled: true,
-	validationMessagesBuilder: (validationMessages) {
+	validationResultsBuilder: (validationResults) {
         return Column(
           children: [
-            for (ValidationResult result in validationMessages)
+            for (ValidationResult result in validationResults)
               Text(result.message + result.isValid.toString())
           ],
         );

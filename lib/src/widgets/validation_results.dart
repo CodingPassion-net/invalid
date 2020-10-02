@@ -2,19 +2,19 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:invalid/invalid.dart';
 
-class ValidationMessages<FormKeyType> extends StatelessWidget {
+class ValidationResults<FormKeyType> extends StatelessWidget {
   final List<FormKeyType> filterByKeys;
   final ValidatorTypeFilter filterByValidatorType;
   final EdgeInsets padding;
   final ValidityFilter filterByValidity;
   final bool ignoreIfFormIsEnabled;
   final bool onlyFirstValidationResult;
-  final Widget Function(List<ValidationResult> validationMessages)
-      validationMessagesBuilder;
+  final Widget Function(List<ValidationResult> validationResults)
+      validationResultsBuilder;
 
-  const ValidationMessages(
+  const ValidationResults(
       {this.filterByKeys,
-      @required this.validationMessagesBuilder,
+      @required this.validationResultsBuilder,
       Key key,
       EdgeInsets padding,
       this.filterByValidatorType,
@@ -67,7 +67,7 @@ class ValidationMessages<FormKeyType> extends StatelessWidget {
           ? Container()
           : Padding(
               padding: padding,
-              child: validationMessagesBuilder(
+              child: validationResultsBuilder(
                 filteredValidationResults.toList(),
               ),
             );

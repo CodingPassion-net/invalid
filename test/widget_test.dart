@@ -312,13 +312,13 @@ class CustomValidationMessagesState<FormKeyType>
     extends State<CustomValidationMessages> {
   @override
   Widget build(BuildContext context) {
-    return ValidationMessages<FormKeyType>(
+    return ValidationResults<FormKeyType>(
       filterByKeys: widget.filterByKeys as List<FormKeyType>,
       filterByValidatorType: widget.filterByValidatorType,
       filterByValidity: widget.filterByValidity,
       ignoreIfFormIsEnabled: widget.ignoreIfFormIsEnabled,
       onlyFirstValidationResult: widget.onlyFirstValidationResult,
-      validationMessagesBuilder: (validationMessages) {
+      validationResultsBuilder: (validationMessages) {
         return Column(
           children: [
             for (ValidationResult result in validationMessages)
