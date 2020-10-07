@@ -75,9 +75,9 @@ extension BuildContextExtensions on BuildContext {
 
 class ValidationCapability<KeyType> {
   FormValidationCubit<KeyType> _formValidationBloc;
-  final KeyType validationKey;
-  final List<FieldValidator<dynamic, KeyType, dynamic>> validators;
-  final String fieldName;
+  KeyType validationKey;
+  List<FieldValidator<dynamic, KeyType, dynamic>> validators;
+  String fieldName;
 
   ValidationCapability(
       {@required this.validationKey,
@@ -103,14 +103,6 @@ class ValidationCapability<KeyType> {
       throw UninitializedException<KeyType>();
     }
     _formValidationBloc.updateField(validationKey, newVal);
-  }
-
-  ValidationCapability<KeyType> copyWith(
-      {KeyType validationKey, List<FieldValidator<dynamic, KeyType, dynamic>> validators, Field field}) {
-    return ValidationCapability<KeyType>(
-        fieldName: fieldName ?? fieldName,
-        validators: validators ?? [...validators],
-        validationKey: validationKey ?? this.validationKey);
   }
 }
 
