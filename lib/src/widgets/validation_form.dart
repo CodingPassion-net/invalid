@@ -41,32 +41,24 @@ class ValidationForm<KeyType> extends StatelessWidget {
     return BlocProvider<FormValidationCubit<KeyType>>(
       create: (BuildContext context) {
         var formValidationCubit = FormValidationCubit<KeyType>(
-            FormValidationState<KeyType>(
-                enabled: enabled, formValidators: formValidators));
+            FormValidationState<KeyType>(enabled: enabled, formValidators: formValidators));
         onFormValidationCubitCreated?.call(formValidationCubit);
         return formValidationCubit;
       },
-      child: BlocListener<FormValidationCubit<KeyType>,
-          FormValidationState<KeyType>>(
+      child: BlocListener<FormValidationCubit<KeyType>, FormValidationState<KeyType>>(
         listener: (_, state) {
           return onUpdate?.call(state);
         },
-        child: BlocListener<FormValidationCubit<KeyType>,
-            FormValidationState<KeyType>>(
+        child: BlocListener<FormValidationCubit<KeyType>, FormValidationState<KeyType>>(
           listenWhen: (previousState, currentState) =>
-              onFormTurnedValid != null &&
-              !previousState.isValid &&
-              currentState.isValid,
+              onFormTurnedValid != null && !previousState.isValid && currentState.isValid,
           listener: (BuildContext context, state) {
             onFormTurnedValid?.call(state);
           },
-          child: BlocListener<FormValidationCubit<KeyType>,
-              FormValidationState<KeyType>>(
+          child: BlocListener<FormValidationCubit<KeyType>, FormValidationState<KeyType>>(
             child: child,
             listenWhen: (previousState, currentState) =>
-                onFormTurnedInValid != null &&
-                previousState.isValid &&
-                !currentState.isValid,
+                onFormTurnedInValid != null && previousState.isValid && !currentState.isValid,
             listener: (BuildContext context, state) {
               onFormTurnedInValid?.call(state);
             },
@@ -78,39 +70,31 @@ class ValidationForm<KeyType> extends StatelessWidget {
 }
 
 extension BuildContextExtensions on BuildContext {
-  FormValidationCubit<KeyType> getForm<KeyType>() =>
-      BlocProvider.of<FormValidationCubit<KeyType>>(this);
+  FormValidationCubit<KeyType> getForm<KeyType>() => BlocProvider.of<FormValidationCubit<KeyType>>(this);
 }
 
 class ValidationCapability<KeyType> {
   FormValidationCubit<KeyType> _formValidationBloc;
   final KeyType validationKey;
-  final List<FieldValidator<dynamic, KeyType, dynamic>> _validators;
+  final List<FieldValidator<dynamic, KeyType, dynamic>> validators;
   final String fieldName;
 
   ValidationCapability(
       {@required this.validationKey,
       this.fieldName,
-      Iterable<FieldValidator<dynamic, KeyType, dynamic>> validators =
-          const []})
-      : _validators = validators.toList();
+      Iterable<FieldValidator<dynamic, KeyType, dynamic>> validators = const []})
+      : validators = validators.toList();
 
   void init(BuildContext context) {
-    _formValidationBloc = _addFieldAndGetForm(
-        _validators, validationKey, context,
-        fieldName: fieldName);
+    _formValidationBloc = _addFieldAndGetForm(validators, validationKey, context, fieldName: fieldName);
   }
 
   FormValidationCubit<KeyType> _addFieldAndGetForm(
-      Iterable<FieldValidator<dynamic, KeyType, dynamic>> validators,
-      KeyType key,
-      BuildContext context,
+      Iterable<FieldValidator<dynamic, KeyType, dynamic>> validators, KeyType key, BuildContext context,
       {String fieldName}) {
     if (key == null) return null;
-    var formValidationBloc =
-        BlocProvider.of<FormValidationCubit<KeyType>>(context);
-    formValidationBloc.addField(
-        Field<KeyType>(key: key, validators: validators, fieldName: fieldName));
+    var formValidationBloc = BlocProvider.of<FormValidationCubit<KeyType>>(context);
+    formValidationBloc.addField(Field<KeyType>(key: key, validators: validators, fieldName: fieldName));
     return formValidationBloc;
   }
 
@@ -122,12 +106,10 @@ class ValidationCapability<KeyType> {
   }
 
   ValidationCapability<KeyType> copyWith(
-      {KeyType validationKey,
-      List<FieldValidator<dynamic, KeyType, dynamic>> validators,
-      Field field}) {
+      {KeyType validationKey, List<FieldValidator<dynamic, KeyType, dynamic>> validators, Field field}) {
     return ValidationCapability<KeyType>(
         fieldName: fieldName ?? fieldName,
-        validators: validators ?? [..._validators],
+        validators: validators ?? [...validators],
         validationKey: validationKey ?? this.validationKey);
   }
 }
@@ -141,19 +123,14 @@ class TextValidationCapability<KeyType> extends ValidationCapability<KeyType> {
       String fieldName,
       Iterable<FieldValidator<dynamic, KeyType, dynamic>> validators = const [],
       this.autoValidate = true})
-      : super(
-            validationKey: validationKey,
-            validators: validators,
-            fieldName: fieldName);
+      : super(validationKey: validationKey, validators: validators, fieldName: fieldName);
 
   @override
-  void init(BuildContext context,
-      {@required TextEditingController controller}) {
+  void init(BuildContext context, {@required TextEditingController controller}) {
     super.init(context);
     _controller = controller;
     addUpdateFieldEvent(_controller.text);
-    if (autoValidate)
-      _controller?.addListener(() => addUpdateFieldEvent(_controller.text));
+    if (autoValidate) _controller?.addListener(() => addUpdateFieldEvent(_controller.text));
   }
 }
 
