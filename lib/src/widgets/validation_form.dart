@@ -108,7 +108,7 @@ class ValidationCapability<KeyType> {
 
 class TextValidationCapability<KeyType> extends ValidationCapability<KeyType> {
   TextEditingController _controller;
-  final bool autoValidate;
+  bool autoValidate;
 
   TextValidationCapability(
       {@required KeyType validationKey,
