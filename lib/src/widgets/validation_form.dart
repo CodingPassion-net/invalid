@@ -98,7 +98,7 @@ class ValidationCapability<KeyType> {
     return formValidationBloc;
   }
 
-  void addUpdateFieldEvent(dynamic newVal) {
+  void updateField(dynamic newVal) {
     if (_formValidationBloc == null) {
       throw UninitializedException<KeyType>();
     }
@@ -121,8 +121,8 @@ class TextValidationCapability<KeyType> extends ValidationCapability<KeyType> {
   void init(BuildContext context, {@required TextEditingController controller}) {
     super.init(context);
     _controller = controller;
-    addUpdateFieldEvent(_controller.text);
-    if (autoValidate) _controller?.addListener(() => addUpdateFieldEvent(_controller.text));
+    updateField(_controller.text);
+    if (autoValidate) _controller?.addListener(() => updateField(_controller.text));
   }
 }
 
