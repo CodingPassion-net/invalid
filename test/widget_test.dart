@@ -267,7 +267,7 @@ void main() {
   });
 
   testWidgets(
-      'should placeholder widget when no validation messages are present',
+      'should show placeholder widget when no validation messages are present',
           (tester) async {
         final validationResultsPlaceholderKey = ValueKey("validationResultsPlaceholderKey");
 
@@ -286,7 +286,7 @@ void main() {
       });
 
   testWidgets(
-      'should placeholder widget when no validation took place',
+      'should show placeholder widget when no validation took place',
           (tester) async {
         final validationResultsPlaceholderKey = ValueKey("validationResultsPlaceholderKey");
 
