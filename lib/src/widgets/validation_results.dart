@@ -11,6 +11,8 @@ class ValidationResults<FormKeyType> extends StatelessWidget {
   final bool onlyFirstValidationResult;
   final Widget Function(List<ValidationResult> validationResults)
       validationResultsBuilder;
+  /// Placeholder widget when the validation results are empty. Defaults to empty [Container]
+  final Widget validationResultPlaceholder;
 
   const ValidationResults(
       {this.filterByKeys,
@@ -20,7 +22,9 @@ class ValidationResults<FormKeyType> extends StatelessWidget {
       this.filterByValidatorType,
       ValidityFilter filterByValidity,
       bool ignoreIfFormIsEnabled,
-      bool onlyFirstValidationResult})
+      bool onlyFirstValidationResult,
+      this.validationResultPlaceholder
+      })
       : ignoreIfFormIsEnabled = ignoreIfFormIsEnabled ?? false,
         filterByValidity = filterByValidity ?? ValidityFilter.OnlyInvalid,
         padding = padding ?? EdgeInsets.zero,
@@ -64,7 +68,7 @@ class ValidationResults<FormKeyType> extends StatelessWidget {
         filteredValidationResults = filteredValidationResults.take(1);
 
       return filteredValidationResults.isEmpty
-          ? Container()
+          ? validationResultPlaceholder ?? Container()
           : Padding(
               padding: padding,
               child: validationResultsBuilder(

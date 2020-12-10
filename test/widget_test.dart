@@ -3,6 +3,12 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:invalid/invalid.dart';
 
+final fieldOneKey = ValueKey("Field1");
+final fieldTwoKey = ValueKey("Field2");
+
+Finder get fieldOneFinder => find.byKey(fieldOneKey);
+Finder get fieldTwoFinder => find.byKey(fieldTwoKey);
+
 void main() {
   setUpAll(() {
     ValidationConfiguration<EmptyDefaultValidationMessages>.initialize();
@@ -32,7 +38,7 @@ void main() {
           child: Column(
             children: [
               CustomTextField(
-                key: ValueKey("Field1"),
+                key: fieldOneKey,
                 validationCapability: TextValidationCapability<FormKeys>(
                     validationKey: FormKeys.Key1,
                     validators: [
@@ -47,7 +53,7 @@ void main() {
                     ]),
               ),
               CustomTextField(
-                key: ValueKey("Field2"),
+                key: fieldTwoKey,
                 validationCapability: TextValidationCapability<FormKeys>(
                     validationKey: FormKeys.Key2,
                     validators: [
@@ -82,8 +88,8 @@ void main() {
           expectAsync1<dynamic, FormValidationState<FormKeys>>((state) {
         expect(state.isValid, true);
       }));
-      await tester.enterText(find.byKey(ValueKey("Field1")), "test");
-      await tester.enterText(find.byKey(ValueKey("Field2")), "test");
+      await tester.enterText(fieldOneFinder, "test");
+      await tester.enterText(fieldTwoFinder, "test");
     }, timeout: Timeout(Duration(seconds: 1)));
 
     testWidgets(
@@ -96,11 +102,11 @@ void main() {
           }, count: 2));
 
       // turn valid
-      await tester.enterText(find.byKey(ValueKey("Field1")), "test");
-      await tester.enterText(find.byKey(ValueKey("Field2")), "test");
+      await tester.enterText(fieldOneFinder, "test");
+      await tester.enterText(fieldTwoFinder, "test");
 
       //turn invalid
-      await tester.enterText(find.byKey(ValueKey("Field1")), "");
+      await tester.enterText(fieldOneFinder, "");
       await tester.pumpAndSettle();
     }, timeout: Timeout(Duration(seconds: 1)));
 
@@ -134,7 +140,7 @@ void main() {
           validationMessages: CustomValidationMessages<FormKeys>());
 
       // Make one field invalid
-      await tester.enterText(find.byKey(ValueKey("Field1")), "test");
+      await tester.enterText(fieldOneFinder, "test");
       await tester.pumpAndSettle();
 
       expect(find.text("should not be empty (Key 1)"), findsNothing);
@@ -151,7 +157,7 @@ void main() {
           ));
 
       // Make one field invalid
-      await tester.enterText(find.byKey(ValueKey("Field1")), "test");
+      await tester.enterText(fieldOneFinder, "test");
       await tester.pumpAndSettle();
 
       expect(find.text("should not be empty (Key 1)"), findsOneWidget);
@@ -168,7 +174,7 @@ void main() {
           ));
 
       // Make one field valid
-      await tester.enterText(find.byKey(ValueKey("Field1")), "test");
+      await tester.enterText(fieldOneFinder, "test");
       await tester.pumpAndSettle();
 
       expect(find.text("should not be empty (Key 1)"), findsOneWidget);
@@ -198,7 +204,7 @@ void main() {
           ));
 
       // Make form validator invalid
-      await tester.enterText(find.byKey(ValueKey("Field1")), "test");
+      await tester.enterText(fieldOneFinder, "test");
       await tester.pumpAndSettle();
 
       expect(find.text("should not be empty (Key 1)"),
@@ -217,7 +223,7 @@ void main() {
           ));
 
       // Make form validator invalid
-      await tester.enterText(find.byKey(ValueKey("Field1")), "test");
+      await tester.enterText(fieldOneFinder, "test");
       await tester.pumpAndSettle();
 
       expect(find.text("should not be empty (Key 1)"), findsNothing);
@@ -251,7 +257,7 @@ void main() {
           find.text("should not be empty or whitespace (Key 1)"), findsNothing);
 
       // Make top validator valid
-      await tester.enterText(find.byKey(ValueKey("Field1")), "   ");
+      await tester.enterText(fieldOneFinder, "   ");
       await tester.pumpAndSettle();
 
       expect(find.text("should not be empty (Key 1)"), findsNothing);
@@ -259,6 +265,39 @@ void main() {
           findsOneWidget);
     });
   });
+
+  testWidgets(
+      'should show placeholder widget when no validation messages are present',
+          (tester) async {
+        final validationResultsPlaceholderKey = ValueKey("validationResultsPlaceholderKey");
+
+        await setUpValidationForm(tester,
+            enabled: true,
+            validationMessages: CustomValidationMessages<FormKeys>(
+              validationResultPlaceholder: Container(key: validationResultsPlaceholderKey,),
+            ));
+
+        // Make fields valid
+        await tester.enterText(fieldOneFinder, "test");
+        await tester.enterText(fieldTwoFinder, "test");
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(validationResultsPlaceholderKey), findsOneWidget);
+      });
+
+  testWidgets(
+      'should show placeholder widget when no validation took place',
+          (tester) async {
+        final validationResultsPlaceholderKey = ValueKey("validationResultsPlaceholderKey");
+
+        await setUpValidationForm(tester,
+            enabled: false,
+            validationMessages: CustomValidationMessages<FormKeys>(
+              validationResultPlaceholder: Container(key: validationResultsPlaceholderKey,),
+            ));
+
+        expect(find.byKey(validationResultsPlaceholderKey), findsOneWidget);
+      });
 }
 
 enum FormKeys { Key1, Key2 }
@@ -294,6 +333,7 @@ class CustomValidationMessages<FormKeyType> extends StatefulWidget {
   final ValidityFilter filterByValidity;
   final bool ignoreIfFormIsEnabled;
   final bool onlyFirstValidationResult;
+  final Widget validationResultPlaceholder;
 
   const CustomValidationMessages(
       {Key key,
@@ -301,6 +341,7 @@ class CustomValidationMessages<FormKeyType> extends StatefulWidget {
       this.filterByValidatorType,
       this.ignoreIfFormIsEnabled = false,
       this.filterByValidity = ValidityFilter.OnlyInvalid,
+      this.validationResultPlaceholder,
       this.onlyFirstValidationResult = false})
       : super(key: key);
   @override
@@ -318,6 +359,7 @@ class CustomValidationMessagesState<FormKeyType>
       filterByValidity: widget.filterByValidity,
       ignoreIfFormIsEnabled: widget.ignoreIfFormIsEnabled,
       onlyFirstValidationResult: widget.onlyFirstValidationResult,
+      validationResultPlaceholder: widget.validationResultPlaceholder,
       validationResultsBuilder: (validationMessages) {
         return Column(
           children: [
