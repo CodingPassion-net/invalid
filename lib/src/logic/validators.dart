@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:invalid/invalid.dart';
 import 'package:meta/meta.dart';
+
 import 'validation_configuration.dart';
 
 @immutable
@@ -63,7 +64,7 @@ abstract class FieldValidator<
 
   TypeOfValidatedValue parseValue(dynamic value) =>
       ValidationConfiguration.instance()
-          .getTypeConverter<TypeOfValidatedValue>(value.runtimeType as Type)
+          .getTypeConverter<TypeOfValidatedValue>(value.runtimeType)
           .canConvert(value);
 
   ValidationResult<KeyType> validate(Field<KeyType> field) {
