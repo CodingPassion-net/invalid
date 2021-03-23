@@ -7,12 +7,16 @@ class FormValidationCubit<KeyType> extends Cubit<FormValidationState<KeyType>> {
   FormValidationCubit(FormValidationState<KeyType> initialState)
       : super(initialState);
 
-  /// This updates the value in a field
-  void updateField(KeyType fieldKey, dynamic newValue) =>
-      emit(state.updateField(fieldKey, newValue));
+  /// This updates a field
+  void updateField(KeyType fieldKey, Field<KeyType> newField) =>
+      emit(state.updateField(fieldKey, newField));
 
-  /// This adds a field to the form.
-  void addField(Field<KeyType> field) => emit(state.addField(field));
+  /// This updates the value in a field
+  void updateFieldValue(KeyType fieldKey, dynamic newValue) =>
+      emit(state.updateFieldValue(fieldKey, newValue));
+
+  /// This adds or replaces a field to the form.
+  void addOrReplaceField(Field<KeyType> field) => emit(state.addOrReplaceField(field));
 
   /// Validation messages are hidden by default, calling this method will enable validation.
   /// Use case for this is when you have a form, and you want validation messages to appear after the user
@@ -53,7 +57,11 @@ class FormValidationState<KeyType> extends Equatable {
       : fields = (fields ?? []).distinctBy((field) => field.key).toList(),
         formValidators = formValidators ?? [];
 
-  FormValidationState<KeyType> updateField(KeyType fieldKey, dynamic newValue) {
+  FormValidationState<KeyType> updateField(KeyType fieldKey, Field<KeyType> newField) {
+    return copyWith(fields: fields.map((oldField) => oldField.key == fieldKey ? newField : oldField).toList());
+  }
+
+  FormValidationState<KeyType> updateFieldValue(KeyType fieldKey, dynamic newValue) {
     return copyWith(
         fields: fields
             .map((field) => field.key == fieldKey
@@ -63,9 +71,13 @@ class FormValidationState<KeyType> extends Equatable {
                 : field.copyWith())
             .toList());
   }
-
-  FormValidationState<KeyType> addField(Field<KeyType> newField) {
-    return copyWith(fields: [...fields, newField]);
+  
+  FormValidationState<KeyType> addOrReplaceField(Field<KeyType> newField) {
+    if (fields.any((element) => element.key == newField.key)) {
+      return copyWith(fields: fields.map((oldField) => oldField.key == newField.key ? newField : oldField).toList());
+    } else {
+      return copyWith(fields: [...fields, newField]);
+    }
   }
 
   FormValidationState<KeyType> copyWith({

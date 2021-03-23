@@ -193,7 +193,7 @@ void main() {
               value: false),
         ]);
         expect(sut.isValid, false);
-        sut = sut.updateField(FormKeys.Key1, true);
+        sut = sut.updateFieldValue(FormKeys.Key1, true);
         expect(sut.isValid, true);
       });
 
@@ -210,7 +210,7 @@ void main() {
               validators: [ShouldBeTrueValidator()],
               value: false),
         ]);
-        sut = sut.addField(
+        sut = sut.addOrReplaceField(
           Field<FormKeys>(
               key: FormKeys.Key1,
               validators: [ShouldBeTrueValidator()],
