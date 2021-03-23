@@ -116,7 +116,7 @@ class ValidationCapability<KeyType> {
     if (_formValidationBloc == null) {
       throw UninitializedException<KeyType>();
     }
-    _formValidationBloc.updateField(validationKey, field);
+    _formValidationBloc.updateFieldValue(validationKey, field);
   }
 
   @override
