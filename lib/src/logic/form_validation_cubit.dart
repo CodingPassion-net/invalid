@@ -7,10 +7,6 @@ class FormValidationCubit<KeyType> extends Cubit<FormValidationState<KeyType>> {
   FormValidationCubit(FormValidationState<KeyType> initialState)
       : super(initialState);
 
-  /// This updates a field
-  void updateField(KeyType fieldKey, Field<KeyType> newField) =>
-      emit(state.updateField(fieldKey, newField));
-
   /// This updates the value in a field
   void updateFieldValue(KeyType fieldKey, dynamic newValue) =>
       emit(state.updateFieldValue(fieldKey, newValue));
@@ -56,10 +52,6 @@ class FormValidationState<KeyType> extends Equatable {
       this.enabled = false})
       : fields = (fields ?? []).distinctBy((field) => field.key).toList(),
         formValidators = formValidators ?? [];
-
-  FormValidationState<KeyType> updateField(KeyType fieldKey, Field<KeyType> newField) {
-    return copyWith(fields: fields.map((oldField) => oldField.key == fieldKey ? newField : oldField).toList());
-  }
 
   FormValidationState<KeyType> updateFieldValue(KeyType fieldKey, dynamic newValue) {
     return copyWith(

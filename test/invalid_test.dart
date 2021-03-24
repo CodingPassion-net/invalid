@@ -197,27 +197,28 @@ void main() {
         expect(sut.isValid, true);
       });
 
-      test(
-          'adding multiple fields with the same key, should only add the first one',
-          () {
+      test('adding multiple fields with the same key, should only add the first one', () {
         var sut = FormValidationState<FormKeys>(fields: [
-          Field<FormKeys>(
-              key: FormKeys.Key1,
-              validators: [ShouldBeTrueValidator()],
-              value: false),
-          Field<FormKeys>(
-              key: FormKeys.Key1,
-              validators: [ShouldBeTrueValidator()],
-              value: false),
+          Field<FormKeys>(key: FormKeys.Key1, validators: [ShouldBeTrueValidator()], value: false),
+          Field<FormKeys>(key: FormKeys.Key1, validators: [ShouldBeTrueValidator()], value: false),
         ]);
         sut = sut.addOrReplaceField(
-          Field<FormKeys>(
-              key: FormKeys.Key1,
-              validators: [ShouldBeTrueValidator()],
-              value: false),
+          Field<FormKeys>(key: FormKeys.Key1, validators: [ShouldBeTrueValidator()], value: false),
         );
-        expect(
-            sut.fields.where((field) => field.key == FormKeys.Key1).length, 1);
+        sut = sut.addOrReplaceField(
+          Field<FormKeys>(key: FormKeys.Key1, validators: [ShouldBeTrueValidator()], value: false),
+        );
+        expect(sut.fields.where((field) => field.key == FormKeys.Key1).length, 1);
+      });
+
+      test('can replace fields with the same key', () {
+        var sut = FormValidationState<FormKeys>(fields: [
+          Field<FormKeys>(key: FormKeys.Key1, validators: [ShouldBeTrueValidator()], value: false),
+        ]);
+        final updatedField = Field<FormKeys>(key: FormKeys.Key1, validators: [ShouldBeTrueValidator()], value: true);
+        sut = sut.addOrReplaceField(updatedField);
+
+        expect(sut.fields.single, updatedField);
       });
     });
 
