@@ -42,10 +42,13 @@ class ValidationResult<KeyType> extends Equatable {
       ];
 }
 
-abstract class Validator<KeyType> {
+abstract class Validator<KeyType> extends Equatable {
   final KeyType key;
 
   Validator(this.key);
+
+  @override
+  List<Object> get props => [key];
 }
 
 @immutable
@@ -86,6 +89,9 @@ abstract class FieldValidator<
         isValid, buildErrorMessage(this as TFieldValidator, field), false,
         validatorKey: key);
   }
+
+  @override
+  List<Object> get props => [...super.props, allowNull];
 }
 
 /// A [FormValidator] is a validator, that can span multiple fields.
@@ -107,6 +113,7 @@ abstract class FormValidator<KeyType,
 
   @protected
   bool isValid(Iterable<Field<KeyType>> fields);
+
 }
 
 // Form Validators -----------------------------------------------
@@ -137,6 +144,10 @@ class ShouldBeEqualFormValidator<KeyType>
 
     return fieldValues.toSet().length <= 1;
   }
+
+  @override
+  List<Object> get props => [...super.props, keysOfFieldsWhichShouldBeEqual];
+
 }
 
 class MultiFieldDateValidator<KeyType>
@@ -181,6 +192,10 @@ class MultiFieldDateValidator<KeyType>
         ? dateTime
         : null;
   }
+
+  @override
+  List<Object> get props => [...super.props, dayFieldKey, monthFieldKey, yearFieldKey];
+
 }
 
 // Field Validators ----------------------------------------------
@@ -213,6 +228,10 @@ class ShouldNotBeNullValidator<TypeOfValidatedValue, KeyType>
           "Either you didn't specify the type argument 'TypeOfValidatedValue', or there is no TypeConverter registered: $e");
     }
   }
+
+  @override
+  List<Object> get props => [...super.props, allowNull];
+
 }
 
 class ShouldNotBeEmptyValidator<KeyType> extends FieldValidator<String, KeyType,
@@ -316,6 +335,10 @@ class ShouldInBetweenDatesValidator<KeyType> extends FieldValidator<DateTime,
   bool isValid(DateTime date) {
     return (date.compareTo(min) > 0 && date.compareTo(max) < 0);
   }
+
+  @override
+  List<Object> get props => [...super.props, min, max];
+
 }
 
 class ShouldBeBiggerThanValidator<KeyType> extends FieldValidator<double,
@@ -338,6 +361,10 @@ class ShouldBeBiggerThanValidator<KeyType> extends FieldValidator<double,
   bool isValid(double value) {
     return value > min;
   }
+
+  @override
+  List<Object> get props => [...super.props, min];
+
 }
 
 class ShouldBeSmallerThenValidator<KeyType> extends FieldValidator<double,
@@ -361,6 +388,10 @@ class ShouldBeSmallerThenValidator<KeyType> extends FieldValidator<double,
   bool isValid(double value) {
     return value < max;
   }
+
+  @override
+  List<Object> get props => [...super.props, max];
+
 }
 
 class ShouldBeBiggerOrEqualThenValidator<KeyType> extends FieldValidator<double,
@@ -384,6 +415,10 @@ class ShouldBeBiggerOrEqualThenValidator<KeyType> extends FieldValidator<double,
   bool isValid(double value) {
     return value >= min;
   }
+
+  @override
+  List<Object> get props => [...super.props, min];
+
 }
 
 class ShouldBeSmallerOrEqualThenValidator<KeyType> extends FieldValidator<
@@ -407,6 +442,10 @@ class ShouldBeSmallerOrEqualThenValidator<KeyType> extends FieldValidator<
   bool isValid(double value) {
     return value <= max;
   }
+
+  @override
+  List<Object> get props => [...super.props, max];
+
 }
 
 class ShouldBeBetweenValidator<KeyType>
@@ -431,6 +470,10 @@ class ShouldBeBetweenValidator<KeyType>
   bool isValid(double value) {
     return min < value && value < max;
   }
+
+  @override
+  List<Object> get props => [...super.props, min, max];
+
 }
 
 class ShouldBeBetweenOrEqualValidator<KeyType> extends FieldValidator<double,
@@ -456,4 +499,8 @@ class ShouldBeBetweenOrEqualValidator<KeyType> extends FieldValidator<double,
   bool isValid(double value) {
     return min <= value && value <= max;
   }
+
+  @override
+  List<Object> get props => [...super.props, min, max];
+
 }

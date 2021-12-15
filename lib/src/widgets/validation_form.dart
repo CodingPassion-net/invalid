@@ -2,6 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:invalid/invalid.dart';
 
+import 'package:collection/collection.dart';
+
 class ValidationForm<KeyType> extends StatelessWidget {
   final Iterable<FormValidator<KeyType, FormValidator>> formValidators;
 
@@ -25,6 +27,7 @@ class ValidationForm<KeyType> extends StatelessWidget {
   /// has clicked the submit button.
   final bool enabled;
   final Widget child;
+
   const ValidationForm(
       {Key key,
       @required this.child,
@@ -79,6 +82,10 @@ class ValidationCapability<KeyType> {
   List<FieldValidator<dynamic, KeyType, dynamic>> validators;
   String fieldName;
 
+  Field<KeyType> get field {
+    return Field<KeyType>(key: validationKey, validators: validators, fieldName: fieldName);
+  }
+
   ValidationCapability(
       {@required this.validationKey,
       this.fieldName,
@@ -94,16 +101,35 @@ class ValidationCapability<KeyType> {
       {String fieldName}) {
     if (key == null) return null;
     var formValidationBloc = BlocProvider.of<FormValidationCubit<KeyType>>(context);
-    formValidationBloc.addField(Field<KeyType>(key: key, validators: validators, fieldName: fieldName));
+    formValidationBloc.addOrReplaceField(field);
     return formValidationBloc;
   }
 
-  void updateField(dynamic newVal) {
+  void updateFieldValue(dynamic newVal) {
     if (_formValidationBloc == null) {
       throw UninitializedException<KeyType>();
     }
-    _formValidationBloc.updateField(validationKey, newVal);
+    _formValidationBloc.updateFieldValue(validationKey, newVal);
   }
+
+  void updateField() {
+    if (_formValidationBloc == null) {
+      throw UninitializedException<KeyType>();
+    }
+    _formValidationBloc.updateFieldValue(validationKey, field);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ValidationCapability &&
+          runtimeType == other.runtimeType &&
+          validationKey == other.validationKey &&
+          ListEquality<FieldValidator<dynamic, dynamic, dynamic>>().equals(validators, other.validators) &&
+          fieldName == other.fieldName;
+
+  @override
+  int get hashCode => validationKey.hashCode ^ validators.hashCode ^ fieldName.hashCode;
 }
 
 class TextValidationCapability<KeyType> extends ValidationCapability<KeyType> {
@@ -121,9 +147,20 @@ class TextValidationCapability<KeyType> extends ValidationCapability<KeyType> {
   void init(BuildContext context, {@required TextEditingController controller}) {
     super.init(context);
     _controller = controller;
-    updateField(_controller.text);
-    if (autoValidate) _controller?.addListener(() => updateField(_controller.text));
+    updateFieldValue(_controller.text);
+    if (autoValidate) _controller?.addListener(() => updateFieldValue(_controller.text));
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      super == other &&
+          other is TextValidationCapability &&
+          runtimeType == other.runtimeType &&
+          autoValidate == other.autoValidate;
+
+  @override
+  int get hashCode => super.hashCode ^ _controller.hashCode ^ autoValidate.hashCode;
 }
 
 class UninitializedException<KeyType> implements Exception {
