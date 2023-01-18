@@ -1,3 +1,5 @@
+// @dart=2.9
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:invalid/invalid.dart';
@@ -7,13 +9,13 @@ import 'package:collection/collection.dart';
 class ValidationForm<KeyType> extends StatelessWidget {
   final Iterable<FormValidator<KeyType, FormValidator>> formValidators;
 
-  /// Will be called once the form turns from invald to valid.
-  /// But be aware, fields (therefor also validatores) can be removed asynchronously.
-  /// When you remove all fields (therefor also validatores) the form turns valid and this callback is called.
+  /// Will be called once the form turns from invalid to valid.
+  /// But be aware, fields (therefor also validators) can be removed asynchronously.
+  /// When you remove all fields (therefor also validators) the form turns valid and this callback is called.
   final Function(FormValidationState<KeyType>) onFormTurnedValid;
 
   /// Will be called once the form turns from valid to invalid.
-  /// But be aware, fields (therefor also validatores) are added asynchronously (for example in initState of TextField),
+  /// But be aware, fields (therefor also validators) are added asynchronously (for example in initState of TextField),
   /// which means, that the form is valid at the beginning and once you add fields it can turn invalid.
   /// That's why it can happen that this callback is called immediately, after adding fields.
   final Function(FormValidationState<KeyType>) onFormTurnedInValid;
