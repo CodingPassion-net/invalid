@@ -1,12 +1,13 @@
+// @dart=2.9
+
 import 'package:test/test.dart';
 import 'package:intl/intl.dart';
 import 'package:invalid/invalid.dart';
 
-Matcher resultIsValid(bool value) => isA<ValidationResult<FormKeys>>()
-    .having((result) => result.isValid, "", value);
+Matcher resultIsValid(bool value) => isA<ValidationResult<FormKeys>>().having((result) => result.isValid, "", value);
 
-Matcher resultHasMessage(String message) => isA<ValidationResult<FormKeys>>()
-    .having((result) => result.message, "", message);
+Matcher resultHasMessage(String message) =>
+    isA<ValidationResult<FormKeys>>().having((result) => result.message, "", message);
 
 void main() {
   ValidationConfiguration<EmptyDefaultValidationMessages>.initialize();
@@ -15,41 +16,29 @@ void main() {
     group('FormValidator', () {
       test('form is valid if all form fields are valid', () {
         var sut = FormValidationState<FormKeys>(fields: [
-          Field<FormKeys>(
-              key: FormKeys.Key1,
-              validators: [AlwaysTrueValidator(), AlwaysTrueValidator()]),
-          Field<FormKeys>(
-              key: FormKeys.Key2,
-              validators: [AlwaysTrueValidator(), AlwaysTrueValidator()])
+          Field<FormKeys>(key: FormKeys.Key1, validators: [AlwaysTrueValidator(), AlwaysTrueValidator()]),
+          Field<FormKeys>(key: FormKeys.Key2, validators: [AlwaysTrueValidator(), AlwaysTrueValidator()])
         ]);
         expect(sut.isValid, true);
       });
 
       test('form is invalid if at least one form field is invalid', () {
         var sut = FormValidationState<FormKeys>(fields: [
-          Field<FormKeys>(
-              key: FormKeys.Key1,
-              validators: [AlwaysTrueValidator(), AlwaysFalseValidator()]),
-          Field<FormKeys>(
-              key: FormKeys.Key2,
-              validators: [AlwaysTrueValidator(), AlwaysTrueValidator()])
+          Field<FormKeys>(key: FormKeys.Key1, validators: [AlwaysTrueValidator(), AlwaysFalseValidator()]),
+          Field<FormKeys>(key: FormKeys.Key2, validators: [AlwaysTrueValidator(), AlwaysTrueValidator()])
         ]);
         expect(sut.isValid, false);
       });
 
       test('form is valid if all form validators are valid', () {
-        var sut = FormValidationState<FormKeys>(formValidators: [
-          AlwaysTrueFormValidator<FormKeys>(),
-          AlwaysTrueFormValidator<FormKeys>()
-        ]);
+        var sut = FormValidationState<FormKeys>(
+            formValidators: [AlwaysTrueFormValidator<FormKeys>(), AlwaysTrueFormValidator<FormKeys>()]);
         expect(sut.isValid, true);
       });
 
       test('form is invalid if any form validator is invalid', () {
-        var sut = FormValidationState<FormKeys>(formValidators: [
-          AlwaysFalseFormValidator<FormKeys>(),
-          AlwaysTrueFormValidator<FormKeys>()
-        ]);
+        var sut = FormValidationState<FormKeys>(
+            formValidators: [AlwaysFalseFormValidator<FormKeys>(), AlwaysTrueFormValidator<FormKeys>()]);
         expect(sut.isValid, false);
       });
 
@@ -58,118 +47,82 @@ void main() {
         setUp(() {
           sut = FormValidationState<FormKeys>(enabled: true, fields: [
             Field<FormKeys>(key: FormKeys.Key1, validators: [
-              AlwaysTrueValidator(
-                  errorMsg: (_, __) => "(Key1) (Valid) (Fieldvalidator)"),
-              AlwaysFalseValidator(
-                  key: FormKeys.Key4,
-                  errorMsg: (_, __) => "(Key4) (Invalid) (Fieldvalidator)")
+              AlwaysTrueValidator(errorMsg: (_, __) => "(Key1) (Valid) (FieldValidator)"),
+              AlwaysFalseValidator(key: FormKeys.Key4, errorMsg: (_, __) => "(Key4) (Invalid) (FieldValidator)")
             ]),
             Field<FormKeys>(key: FormKeys.Key2, validators: [
               AlwaysFalseValidator(),
-              AlwaysTrueValidator(
-                  errorMsg: (_, __) => "(Key2) (Invalid) (Fieldvalidator)")
+              AlwaysTrueValidator(errorMsg: (_, __) => "(Key2) (Invalid) (FieldValidator)")
             ])
           ], formValidators: [
             AlwaysFalseFormValidator<FormKeys>(
-                key: FormKeys.Key3,
-                errorMsg: (_, __) => "(Key3) (Invalid) (Formvalidator)"),
+                key: FormKeys.Key3, errorMsg: (_, __) => "(Key3) (Invalid) (FormValidator)"),
             AlwaysFalseFormValidator<FormKeys>(key: FormKeys.Key4)
           ]);
         });
 
-        test(
-            'validationResultsWhenFormIsEnabled should return empty list if form is disabled',
-            () {
+        test('validationResultsWhenFormIsEnabled should return empty list if form is disabled', () {
           sut = sut.copyWith(enabled: false);
           expect(sut.validationResultsWhenFormIsEnabled, <ValidationResult>[]);
         });
 
-        test(
-            'validationResultsWhenFormIsEnabled should return ValidationResults when form is enabled',
-            () {
+        test('validationResultsWhenFormIsEnabled should return ValidationResults when form is enabled', () {
           sut = sut.copyWith(enabled: true);
-          expect(sut.validationResultsWhenFormIsEnabled,
-              hasLength(greaterThan(0)));
+          expect(sut.validationResultsWhenFormIsEnabled, hasLength(greaterThan(0)));
         });
-        test(
-            'validationResultsWhenFormIsEnabled should return ValidationResults when form is enabled',
-            () {
+        test('validationResultsWhenFormIsEnabled should return ValidationResults when form is enabled', () {
           sut = sut.copyWith(enabled: true);
           expect(sut.allValidationResults, hasLength(greaterThan(0)));
           sut = sut.copyWith(enabled: false);
           expect(sut.allValidationResults, hasLength(greaterThan(0)));
         });
 
-        test(
-            'filterByKeys should only return validation results where the key is in the list',
-            () {
-          expect(
-              sut.allValidationResults
-                  .filterByKeys([FormKeys.Key4, FormKeys.Key3]),
-              [
-                matchValidationResultWithMessage(
-                    "(Key4) (Invalid) (Fieldvalidator)"),
-                matchValidationResultWithMessage(
-                    "(Key3) (Invalid) (Formvalidator)"),
-                matchValidationResultWithMessage(
-                    "(Default) (Invalid) (Formvalidator)"),
-              ]);
+        test('filterByKeys should only return validation results where the key is in the list', () {
+          expect(sut.allValidationResults.filterByKeys([FormKeys.Key4, FormKeys.Key3]), [
+            matchValidationResultWithMessage("(Key4) (Invalid) (FieldValidator)"),
+            matchValidationResultWithMessage("(Key3) (Invalid) (FormValidator)"),
+            matchValidationResultWithMessage("(Default) (Invalid) (FormValidator)"),
+          ]);
         });
 
-        test('onlyInvald should only return invald validation results', () {
+        test('onlyInvalid should only return invalid validation results', () {
           expect(sut.allValidationResults.onlyInvalid, [
-            matchValidationResultWithMessage(
-                "(Key4) (Invalid) (Fieldvalidator)"),
-            matchValidationResultWithMessage(
-                "(Default) (Invalid) (Fieldvalidator)"),
-            matchValidationResultWithMessage(
-                "(Key3) (Invalid) (Formvalidator)"),
-            matchValidationResultWithMessage(
-                "(Default) (Invalid) (Formvalidator)"),
+            matchValidationResultWithMessage("(Key4) (Invalid) (FieldValidator)"),
+            matchValidationResultWithMessage("(Default) (Invalid) (FieldValidator)"),
+            matchValidationResultWithMessage("(Key3) (Invalid) (FormValidator)"),
+            matchValidationResultWithMessage("(Default) (Invalid) (FormValidator)"),
           ]);
         });
 
-        test('onlyValid should only return invald validation results', () {
+        test('onlyValid should only return invalid validation results', () {
           expect(sut.allValidationResults.onlyValid, [
-            matchValidationResultWithMessage("(Key1) (Valid) (Fieldvalidator)"),
-            matchValidationResultWithMessage(
-                "(Key2) (Invalid) (Fieldvalidator)"),
+            matchValidationResultWithMessage("(Key1) (Valid) (FieldValidator)"),
+            matchValidationResultWithMessage("(Key2) (Invalid) (FieldValidator)"),
           ]);
         });
 
-        test(
-            'onlyFormValidationResults should only return ValidationResults from FormValidators',
-            () {
+        test('onlyFormValidationResults should only return ValidationResults from FormValidators', () {
           expect(sut.allValidationResults.onlyFormValidationResults, [
-            matchValidationResultWithMessage(
-                "(Key3) (Invalid) (Formvalidator)"),
-            matchValidationResultWithMessage(
-                "(Default) (Invalid) (Formvalidator)"),
+            matchValidationResultWithMessage("(Key3) (Invalid) (FormValidator)"),
+            matchValidationResultWithMessage("(Default) (Invalid) (FormValidator)"),
           ]);
         });
 
-        test(
-            'onlyFieldValidationResults should only return ValidationResults from FieldValidators',
-            () {
+        test('onlyFieldValidationResults should only return ValidationResults from FieldValidators', () {
           expect(sut.allValidationResults.onlyFieldValidationResults, [
-            matchValidationResultWithMessage("(Key1) (Valid) (Fieldvalidator)"),
-            matchValidationResultWithMessage(
-                "(Key4) (Invalid) (Fieldvalidator)"),
-            matchValidationResultWithMessage(
-                "(Default) (Invalid) (Fieldvalidator)"),
-            matchValidationResultWithMessage(
-                "(Key2) (Invalid) (Fieldvalidator)"),
+            matchValidationResultWithMessage("(Key1) (Valid) (FieldValidator)"),
+            matchValidationResultWithMessage("(Key4) (Invalid) (FieldValidator)"),
+            matchValidationResultWithMessage("(Default) (Invalid) (FieldValidator)"),
+            matchValidationResultWithMessage("(Key2) (Invalid) (FieldValidator)"),
           ]);
         });
       });
 
-      test('the right typeconverter should be picked for type conversion', () {
+      test('the right TypeConverter should be picked for type conversion', () {
         var sut = FormValidationState<FormKeys>(fields: [
           Field<FormKeys>(
               key: FormKeys.Key1,
-              validators: [
-                ShouldBeBiggerThanValidator(min: 19)
-              ], //Validator double
+              validators: [ShouldBeBiggerThanValidator(min: 19)], //Validator double
               value: "20"), //Input String
         ]);
         expect(sut.isValid, true); // This should just trigger validation
@@ -178,19 +131,14 @@ void main() {
       test('throw exception if the type convert not exists', () {
         var sut = FormValidationState<FormKeys>(fields: [
           Field<FormKeys>(
-              key: FormKeys.Key1,
-              validators: [ShouldBeBiggerThanValidator(min: 19)],
-              value: AssertionError()),
+              key: FormKeys.Key1, validators: [ShouldBeBiggerThanValidator(min: 19)], value: AssertionError()),
         ]);
         expect(() => sut.isValid, throwsA(isA<UnsupportedError>()));
       });
 
       test('updateField should update field', () {
         var sut = FormValidationState<FormKeys>(fields: [
-          Field<FormKeys>(
-              key: FormKeys.Key1,
-              validators: [ShouldBeTrueValidator()],
-              value: false),
+          Field<FormKeys>(key: FormKeys.Key1, validators: [ShouldBeTrueValidator()], value: false),
         ]);
         expect(sut.isValid, false);
         sut = sut.updateFieldValue(FormKeys.Key1, true);
@@ -223,62 +171,45 @@ void main() {
     });
 
     void testFieldValidator(
-        FieldValidator<dynamic, FormKeys, FieldValidator> validator,
-        dynamic value,
-        bool expectValid) {
+        FieldValidator<dynamic, FormKeys, FieldValidator> validator, dynamic value, bool expectValid) {
       expect(1, 1);
       expect(
           FormValidationState<FormKeys>(fields: [
-            Field<FormKeys>(
-                key: FormKeys.Key1, validators: [validator], value: value),
+            Field<FormKeys>(key: FormKeys.Key1, validators: [validator], value: value),
           ]).isValid,
           expectValid);
     }
 
     group('Validators', () {
-      test('Validator allowNull should also be applied if using typeconverter',
-          () {
+      test('Validator allowNull should also be applied if using TypeConverter', () {
         ValidationConfiguration<EmptyDefaultValidationMessages>.initialize(
-            typeConverter: [
-              DummyForTypeConverterReturnsNullToDoubleTypeConverter()
-            ]);
-        testFieldValidator(ShouldBeBiggerThanValidator(min: 20),
-            DummyForTypeConverterReturnsNull(), true);
+            typeConverter: [DummyForTypeConverterReturnsNullToDoubleTypeConverter()]);
+        testFieldValidator(ShouldBeBiggerThanValidator(min: 20), DummyForTypeConverterReturnsNull(), true);
       });
 
       test('ShouldNotBeNull', () {
-        testFieldValidator(
-            ShouldNotBeNullValidator<String, FormKeys>(), "Hallo", true);
-        testFieldValidator(
-            ShouldNotBeNullValidator<String, FormKeys>(), null, false);
+        testFieldValidator(ShouldNotBeNullValidator<String, FormKeys>(), "Hallo", true);
+        testFieldValidator(ShouldNotBeNullValidator<String, FormKeys>(), null, false);
 
-        expect(
-            () => testFieldValidator(
-                ShouldNotBeNullValidator<dynamic, FormKeys>(), "Hallo", true),
+        expect(() => testFieldValidator(ShouldNotBeNullValidator<dynamic, FormKeys>(), "Hallo", true),
             throwsA(isA<UnsupportedError>()));
 
         ValidationConfiguration<EmptyDefaultValidationMessages>.initialize(
-            typeConverter: [
-              DummyForTypeConverterReturnsNullToStringTypeConverter()
-            ]);
+            typeConverter: [DummyForTypeConverterReturnsNullToStringTypeConverter()]);
 
-        testFieldValidator(ShouldNotBeNullValidator<String, FormKeys>(),
-            DummyForTypeConverterReturnsNull(), false);
-        testFieldValidator(ShouldNotBeNullValidator<String, FormKeys>(),
-            DummyForTypeConverterReturnsNull()..test = "Hallo", true);
+        testFieldValidator(ShouldNotBeNullValidator<String, FormKeys>(), DummyForTypeConverterReturnsNull(), false);
+        testFieldValidator(
+            ShouldNotBeNullValidator<String, FormKeys>(), DummyForTypeConverterReturnsNull()..test = "Hallo", true);
       });
 
       test('ShouldNotBeEmpty', () {
         testFieldValidator(ShouldNotBeEmptyValidator<FormKeys>(), "", false);
-        testFieldValidator(
-            ShouldNotBeEmptyValidator<FormKeys>(), "Hallo", true);
+        testFieldValidator(ShouldNotBeEmptyValidator<FormKeys>(), "Hallo", true);
       });
 
       test('ShouldNotBeEmptyOrWhiteSpace', () {
-        testFieldValidator(
-            ShouldNotBeEmptyOrWhiteSpaceValidator<FormKeys>(), "Hallo", true);
-        testFieldValidator(ShouldNotBeEmptyOrWhiteSpaceValidator<FormKeys>(),
-            "               ", false);
+        testFieldValidator(ShouldNotBeEmptyOrWhiteSpaceValidator<FormKeys>(), "Hallo", true);
+        testFieldValidator(ShouldNotBeEmptyOrWhiteSpaceValidator<FormKeys>(), "               ", false);
       });
 
       test('ShouldBeTrue', () {
@@ -292,91 +223,52 @@ void main() {
       });
 
       test('ShouldBeBiggerThenValidator', () {
-        testFieldValidator(
-            ShouldBeBiggerThanValidator<FormKeys>(min: 5), 4.99, false);
-        testFieldValidator(
-            ShouldBeBiggerThanValidator<FormKeys>(min: 5), 5, false);
-        testFieldValidator(
-            ShouldBeBiggerThanValidator<FormKeys>(min: 5), 5.1, true);
+        testFieldValidator(ShouldBeBiggerThanValidator<FormKeys>(min: 5), 4.99, false);
+        testFieldValidator(ShouldBeBiggerThanValidator<FormKeys>(min: 5), 5, false);
+        testFieldValidator(ShouldBeBiggerThanValidator<FormKeys>(min: 5), 5.1, true);
       });
 
       test('ShouldBeSmallerThenValidator', () {
-        testFieldValidator(
-            ShouldBeSmallerThenValidator<FormKeys>(max: 5), 4.99, true);
-        testFieldValidator(
-            ShouldBeSmallerThenValidator<FormKeys>(max: 5), 5, false);
-        testFieldValidator(
-            ShouldBeSmallerThenValidator<FormKeys>(max: 5), 5.1, false);
+        testFieldValidator(ShouldBeSmallerThenValidator<FormKeys>(max: 5), 4.99, true);
+        testFieldValidator(ShouldBeSmallerThenValidator<FormKeys>(max: 5), 5, false);
+        testFieldValidator(ShouldBeSmallerThenValidator<FormKeys>(max: 5), 5.1, false);
       });
 
       test('ShouldBeSmallerOrEqualThenValidator', () {
-        testFieldValidator(
-            ShouldBeSmallerOrEqualThenValidator<FormKeys>(max: 5), 4.99, true);
-        testFieldValidator(
-            ShouldBeSmallerOrEqualThenValidator<FormKeys>(max: 5), 5, true);
-        testFieldValidator(
-            ShouldBeSmallerOrEqualThenValidator<FormKeys>(max: 5), 5.1, false);
+        testFieldValidator(ShouldBeSmallerOrEqualThenValidator<FormKeys>(max: 5), 4.99, true);
+        testFieldValidator(ShouldBeSmallerOrEqualThenValidator<FormKeys>(max: 5), 5, true);
+        testFieldValidator(ShouldBeSmallerOrEqualThenValidator<FormKeys>(max: 5), 5.1, false);
       });
 
       test('ShouldBeBiggerOrEqualThenValidator', () {
-        testFieldValidator(
-            ShouldBeBiggerOrEqualThenValidator<FormKeys>(min: 5), 4.99, false);
-        testFieldValidator(
-            ShouldBeBiggerOrEqualThenValidator<FormKeys>(min: 5), 5, true);
-        testFieldValidator(
-            ShouldBeBiggerOrEqualThenValidator<FormKeys>(min: 5), 5.1, true);
+        testFieldValidator(ShouldBeBiggerOrEqualThenValidator<FormKeys>(min: 5), 4.99, false);
+        testFieldValidator(ShouldBeBiggerOrEqualThenValidator<FormKeys>(min: 5), 5, true);
+        testFieldValidator(ShouldBeBiggerOrEqualThenValidator<FormKeys>(min: 5), 5.1, true);
       });
 
       test('ShouldBeBetweenOrEqualValidator', () {
-        testFieldValidator(
-            ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10),
-            4.99,
-            false);
-        testFieldValidator(
-            ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10),
-            5,
-            true);
-        testFieldValidator(
-            ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10),
-            5.1,
-            true);
-        testFieldValidator(
-            ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10),
-            9.9,
-            true);
-        testFieldValidator(
-            ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10),
-            10,
-            true);
-        testFieldValidator(
-            ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10),
-            10.1,
-            false);
+        testFieldValidator(ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10), 4.99, false);
+        testFieldValidator(ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10), 5, true);
+        testFieldValidator(ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10), 5.1, true);
+        testFieldValidator(ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10), 9.9, true);
+        testFieldValidator(ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10), 10, true);
+        testFieldValidator(ShouldBeBetweenOrEqualValidator<FormKeys>(min: 5, max: 10), 10.1, false);
       });
 
       test('ShouldBeBetweenValidator', () {
-        testFieldValidator(
-            ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 4.99, false);
-        testFieldValidator(
-            ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 5, false);
-        testFieldValidator(
-            ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 5.1, true);
-        testFieldValidator(
-            ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 9.9, true);
-        testFieldValidator(
-            ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 10, false);
-        testFieldValidator(
-            ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 10.1, false);
+        testFieldValidator(ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 4.99, false);
+        testFieldValidator(ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 5, false);
+        testFieldValidator(ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 5.1, true);
+        testFieldValidator(ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 9.9, true);
+        testFieldValidator(ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 10, false);
+        testFieldValidator(ShouldBeBetweenValidator<FormKeys>(min: 5, max: 10), 10.1, false);
       });
     });
 
     group('FormValidators', () {
-      var sut = ShouldBeEqualFormValidator<FormKeys>(
-          keysOfFieldsWhichShouldBeEqual: [FormKeys.Key1, FormKeys.Key2]);
+      var sut = ShouldBeEqualFormValidator<FormKeys>(keysOfFieldsWhichShouldBeEqual: [FormKeys.Key1, FormKeys.Key2]);
       var sutMultiFieldDateValidator = MultiFieldDateValidator<FormKeys>(
-          dayFieldKey: FormKeys.Key1,
-          monthFieldKey: FormKeys.Key2,
-          yearFieldKey: FormKeys.Key3);
+          dayFieldKey: FormKeys.Key1, monthFieldKey: FormKeys.Key2, yearFieldKey: FormKeys.Key3);
 
       test('should return true if all field values are equal', () {
         expect(
@@ -449,8 +341,7 @@ void main() {
   });
 }
 
-TypeMatcher<ValidationResult> matchValidationResultWithMessage(
-        String message) =>
+TypeMatcher<ValidationResult> matchValidationResultWithMessage(String message) =>
     isA<ValidationResult>().having((result) => result.message, "", message);
 
 enum FormKeys {
@@ -460,16 +351,12 @@ enum FormKeys {
   Key4,
 }
 
-class AlwaysFalseValidator
-    extends FieldValidator<dynamic, FormKeys, AlwaysFalseValidator> {
+class AlwaysFalseValidator extends FieldValidator<dynamic, FormKeys, AlwaysFalseValidator> {
   @override
   bool get allowNull => false;
 
-  AlwaysFalseValidator(
-      {String Function(AlwaysFalseValidator val, Field field) errorMsg,
-      FormKeys key})
-      : super(
-            errorMsg ?? (_, __) => "(Default) (Invalid) (Fieldvalidator)", key);
+  AlwaysFalseValidator({String Function(AlwaysFalseValidator val, Field field) errorMsg, FormKeys key})
+      : super(errorMsg ?? (_, __) => "(Default) (Invalid) (FieldValidator)", key);
 
   @override
   bool isValid(dynamic value) {
@@ -477,11 +364,8 @@ class AlwaysFalseValidator
   }
 }
 
-class AlwaysTrueValidator
-    extends FieldValidator<dynamic, FormKeys, AlwaysTrueValidator> {
-  AlwaysTrueValidator(
-      {String Function(AlwaysTrueValidator val, Field field) errorMsg,
-      FormKeys key})
+class AlwaysTrueValidator extends FieldValidator<dynamic, FormKeys, AlwaysTrueValidator> {
+  AlwaysTrueValidator({String Function(AlwaysTrueValidator val, Field field) errorMsg, FormKeys key})
       : super(errorMsg ?? (_, __) => "asdf", key);
 
   @override
@@ -490,14 +374,10 @@ class AlwaysTrueValidator
   }
 }
 
-class AlwaysFalseFormValidator<KeyType>
-    extends FormValidator<KeyType, AlwaysFalseFormValidator<KeyType>> {
+class AlwaysFalseFormValidator<KeyType> extends FormValidator<KeyType, AlwaysFalseFormValidator<KeyType>> {
   AlwaysFalseFormValidator(
-      {KeyType key,
-      String Function(AlwaysFalseFormValidator val, Iterable<Field> fields)
-          errorMsg})
-      : super(errorMsg ?? (_, __) => "(Default) (Invalid) (Formvalidator)",
-            key: key);
+      {KeyType key, String Function(AlwaysFalseFormValidator val, Iterable<Field> fields) errorMsg})
+      : super(errorMsg ?? (_, __) => "(Default) (Invalid) (FormValidator)", key: key);
 
   @override
   bool isValid(Iterable<Field<KeyType>> value) {
@@ -505,15 +385,10 @@ class AlwaysFalseFormValidator<KeyType>
   }
 }
 
-class AlwaysTrueFormValidator<KeyType>
-    extends FormValidator<KeyType, AlwaysTrueFormValidator<KeyType>> {
+class AlwaysTrueFormValidator<KeyType> extends FormValidator<KeyType, AlwaysTrueFormValidator<KeyType>> {
   AlwaysTrueFormValidator(
-      {KeyType key,
-      String Function(
-              AlwaysTrueFormValidator<KeyType> val, Iterable<Field> fields)
-          errorMsg})
-      : super(errorMsg ?? (_, __) => "(Default) (Invalid) (Formvalidator)",
-            key: key);
+      {KeyType key, String Function(AlwaysTrueFormValidator<KeyType> val, Iterable<Field> fields) errorMsg})
+      : super(errorMsg ?? (_, __) => "(Default) (Invalid) (FormValidator)", key: key);
 
   @override
   bool isValid(Iterable<Field<KeyType>> value) {

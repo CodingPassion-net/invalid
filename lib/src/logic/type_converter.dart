@@ -1,3 +1,5 @@
+// @dart=2.9
+
 import 'package:intl/intl.dart';
 
 /// When for example the value in a field is of type int, but the validator expects a string,

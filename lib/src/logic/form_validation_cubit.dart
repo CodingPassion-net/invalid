@@ -1,15 +1,15 @@
+// @dart=2.9
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'validators.dart';
 
 class FormValidationCubit<KeyType> extends Cubit<FormValidationState<KeyType>> {
-  FormValidationCubit(FormValidationState<KeyType> initialState)
-      : super(initialState);
+  FormValidationCubit(FormValidationState<KeyType> initialState) : super(initialState);
 
   /// This updates the value in a field
-  void updateFieldValue(KeyType fieldKey, dynamic newValue) =>
-      emit(state.updateFieldValue(fieldKey, newValue));
+  void updateFieldValue(KeyType fieldKey, dynamic newValue) => emit(state.updateFieldValue(fieldKey, newValue));
 
   /// This adds or replaces a field to the form.
   void addOrReplaceField(Field<KeyType> field) => emit(state.addOrReplaceField(field));
@@ -29,8 +29,7 @@ class FormValidationState<KeyType> extends Equatable {
   final Iterable<FormValidator<KeyType, FormValidator>> formValidators;
   final bool enabled;
 
-  bool get isValid => allValidationResults
-      .every((validationResult) => validationResult.isValid);
+  bool get isValid => allValidationResults.every((validationResult) => validationResult.isValid);
 
   /// Returns list of all [ValidationResult].
   Iterable<ValidationResult<KeyType>> get allValidationResults =>
@@ -43,8 +42,7 @@ class FormValidationState<KeyType> extends Equatable {
   Iterable<ValidationResult<KeyType>> get _formValidationResults =>
       formValidators.map((formValidator) => formValidator.validate(fields));
 
-  Iterable<ValidationResult<KeyType>> get _fieldValidationResults =>
-      fields.expand((field) => field.validationResults);
+  Iterable<ValidationResult<KeyType>> get _fieldValidationResults => fields.expand((field) => field.validationResults);
 
   FormValidationState(
       {Iterable<Field<KeyType>> fields,
@@ -57,13 +55,11 @@ class FormValidationState<KeyType> extends Equatable {
     return copyWith(
         fields: fields
             .map((field) => field.key == fieldKey
-                ? field
-                    .copyWith(value: newValue)
-                    .copyWith(setValueToNull: newValue == null)
+                ? field.copyWith(value: newValue).copyWith(setValueToNull: newValue == null)
                 : field.copyWith())
             .toList());
   }
-  
+
   FormValidationState<KeyType> addOrReplaceField(Field<KeyType> newField) {
     if (fields.any((element) => element.key == newField.key)) {
       return copyWith(fields: fields.map((oldField) => oldField.key == newField.key ? newField : oldField).toList());
@@ -87,25 +83,20 @@ class FormValidationState<KeyType> extends Equatable {
   List<Object> get props => [fields, formValidators, enabled];
 }
 
-/// A field represents a value of a formular, that needs validation. For example a TextField or a DatePicker.
+/// A field represents a value of a form, that needs validation. For example a TextField or a DatePicker.
 class Field<KeyType> extends Equatable {
   final Iterable<FieldValidator<dynamic, KeyType, dynamic>> validators;
   final dynamic value;
   final KeyType key;
   final String fieldName;
 
-  bool get isValid =>
-      validationResults.every((validationResult) => validationResult.isValid);
+  bool get isValid => validationResults.every((validationResult) => validationResult.isValid);
 
-  Iterable<ValidationResult<KeyType>> get validationResults => validators
-      .map((validator) => validator.validate(this).copyWith(fieldKey: key))
-      .toList();
+  Iterable<ValidationResult<KeyType>> get validationResults =>
+      validators.map((validator) => validator.validate(this).copyWith(fieldKey: key)).toList();
 
   Field(
-      {@required this.key,
-      Iterable<FieldValidator<dynamic, KeyType, dynamic>> validators,
-      this.value,
-      this.fieldName})
+      {@required this.key, Iterable<FieldValidator<dynamic, KeyType, dynamic>> validators, this.value, this.fieldName})
       : validators = validators ?? [],
         assert(key != null);
 
@@ -143,22 +134,17 @@ extension FieldFinder<KeyType> on Iterable<Field<KeyType>> {
   }
 }
 
-extension ValidationResultsExtension<KeyType>
-    on Iterable<ValidationResult<KeyType>> {
-  Iterable<String> get messages =>
-      map((validationResult) => validationResult.message).toList();
+extension ValidationResultsExtension<KeyType> on Iterable<ValidationResult<KeyType>> {
+  Iterable<String> get messages => map((validationResult) => validationResult.message).toList();
 
-  Iterable<ValidationResult<KeyType>> get onlyInvalid =>
-      where((validationResult) => !validationResult.isValid);
+  Iterable<ValidationResult<KeyType>> get onlyInvalid => where((validationResult) => !validationResult.isValid);
 
-  Iterable<ValidationResult<KeyType>> get onlyValid =>
-      where((validationResult) => validationResult.isValid);
+  Iterable<ValidationResult<KeyType>> get onlyValid => where((validationResult) => validationResult.isValid);
 
-  Iterable<ValidationResult<KeyType>> filterByKeys(Iterable<KeyType> keys) =>
-      where((validationResult) =>
-          keys.contains(validationResult.fieldKey) ||
-          keys.contains(validationResult.validatorKey) ||
-          keys.contains(validationResult.formValidatorKey));
+  Iterable<ValidationResult<KeyType>> filterByKeys(Iterable<KeyType> keys) => where((validationResult) =>
+      keys.contains(validationResult.fieldKey) ||
+      keys.contains(validationResult.validatorKey) ||
+      keys.contains(validationResult.formValidatorKey));
 
   Iterable<ValidationResult<KeyType>> get onlyFormValidationResults =>
       where((validationResult) => validationResult.isFormValidationResult);
