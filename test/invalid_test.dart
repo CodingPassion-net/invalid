@@ -1,7 +1,4 @@
-// @dart=2.9
-
 import 'package:test/test.dart';
-import 'package:intl/intl.dart';
 import 'package:invalid/invalid.dart';
 
 Matcher resultIsValid(bool value) => isA<ValidationResult<FormKeys>>().having((result) => result.isValid, "", value);
@@ -43,7 +40,8 @@ void main() {
       });
 
       group('test validation results', () {
-        FormValidationState<FormKeys> sut;
+        late FormValidationState<FormKeys> sut;
+
         setUp(() {
           sut = FormValidationState<FormKeys>(enabled: true, fields: [
             Field<FormKeys>(key: FormKeys.Key1, validators: [
@@ -355,7 +353,7 @@ class AlwaysFalseValidator extends FieldValidator<dynamic, FormKeys, AlwaysFalse
   @override
   bool get allowNull => false;
 
-  AlwaysFalseValidator({String Function(AlwaysFalseValidator val, Field field) errorMsg, FormKeys key})
+  AlwaysFalseValidator({String Function(AlwaysFalseValidator val, Field field)? errorMsg, FormKeys? key})
       : super(errorMsg ?? (_, __) => "(Default) (Invalid) (FieldValidator)", key);
 
   @override
@@ -365,7 +363,7 @@ class AlwaysFalseValidator extends FieldValidator<dynamic, FormKeys, AlwaysFalse
 }
 
 class AlwaysTrueValidator extends FieldValidator<dynamic, FormKeys, AlwaysTrueValidator> {
-  AlwaysTrueValidator({String Function(AlwaysTrueValidator val, Field field) errorMsg, FormKeys key})
+  AlwaysTrueValidator({String Function(AlwaysTrueValidator val, Field field)? errorMsg, FormKeys? key})
       : super(errorMsg ?? (_, __) => "asdf", key);
 
   @override
@@ -376,7 +374,7 @@ class AlwaysTrueValidator extends FieldValidator<dynamic, FormKeys, AlwaysTrueVa
 
 class AlwaysFalseFormValidator<KeyType> extends FormValidator<KeyType, AlwaysFalseFormValidator<KeyType>> {
   AlwaysFalseFormValidator(
-      {KeyType key, String Function(AlwaysFalseFormValidator val, Iterable<Field> fields) errorMsg})
+      {KeyType? key, String Function(AlwaysFalseFormValidator val, Iterable<Field> fields)? errorMsg})
       : super(errorMsg ?? (_, __) => "(Default) (Invalid) (FormValidator)", key: key);
 
   @override
@@ -387,7 +385,7 @@ class AlwaysFalseFormValidator<KeyType> extends FormValidator<KeyType, AlwaysFal
 
 class AlwaysTrueFormValidator<KeyType> extends FormValidator<KeyType, AlwaysTrueFormValidator<KeyType>> {
   AlwaysTrueFormValidator(
-      {KeyType key, String Function(AlwaysTrueFormValidator<KeyType> val, Iterable<Field> fields) errorMsg})
+      {KeyType? key, String Function(AlwaysTrueFormValidator<KeyType> val, Iterable<Field> fields)? errorMsg})
       : super(errorMsg ?? (_, __) => "(Default) (Invalid) (FormValidator)", key: key);
 
   @override
@@ -397,13 +395,13 @@ class AlwaysTrueFormValidator<KeyType> extends FormValidator<KeyType, AlwaysTrue
 }
 
 class DummyForTypeConverterReturnsNull {
-  String test;
+  String? test;
 }
 
 class DummyForTypeConverterReturnsNullToStringTypeConverter
     extends TypeConverter<DummyForTypeConverterReturnsNull, String> {
   @override
-  String canConvert(DummyForTypeConverterReturnsNull inputType) {
+  String? canConvert(DummyForTypeConverterReturnsNull inputType) {
     return inputType.test;
   }
 }
@@ -411,11 +409,11 @@ class DummyForTypeConverterReturnsNullToStringTypeConverter
 class DummyForTypeConverterReturnsNullToDoubleTypeConverter
     extends TypeConverter<DummyForTypeConverterReturnsNull, double> {
   @override
-  double canConvert(DummyForTypeConverterReturnsNull inputType) {
+  double? canConvert(DummyForTypeConverterReturnsNull inputType) {
     if (inputType.test == null) return null;
-    double convertedDouble;
+    double? convertedDouble;
     try {
-      convertedDouble = NumberFormat().parse(inputType.test) as double;
+      convertedDouble = double.tryParse(inputType.test!);
     } on FormatException catch (_) {
       return null;
     } on TypeError catch (_) {
