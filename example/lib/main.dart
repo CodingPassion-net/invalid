@@ -74,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ]),
             ),
             CustomValidationMessages<FormKeys>(),
-            RaisedButton(
+            ElevatedButton(
               onPressed: () {
                 _formValidation.enableValidation();
               },
