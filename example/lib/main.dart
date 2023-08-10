@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, this.title = ''}) : super(key: key);
   final String title;
 
   @override
@@ -28,7 +28,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  FormValidationCubit<FormKeys> _formValidation;
+  late FormValidationCubit<FormKeys> _formValidation;
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
           child: ValidationForm<FormKeys>(
-        onFormValidationCubitCreated: (formValidation) =>
-            _formValidation = formValidation,
+        onFormValidationCubitCreated: (formValidation) => _formValidation = formValidation,
         formValidators: [
           ShouldBeEqualFormValidator(
               buildErrorMessage: (validator, fields) => "should be equal",
@@ -49,29 +48,22 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             CustomTextField(
               key: ValueKey("Field1"),
-              validationCapability: TextValidationCapability<FormKeys>(
-                  validationKey: FormKeys.Key1,
-                  validators: [
-                    ShouldNotBeEmptyValidator(
-                      buildErrorMessage: (validator, field) =>
-                          "should not be empty (Key 1)",
-                    ),
-                    ShouldNotBeEmptyOrWhiteSpaceValidator(
-                      buildErrorMessage: (validator, field) =>
-                          "should not be empty or whitespace (Key 1)",
-                    )
-                  ]),
+              validationCapability: TextValidationCapability<FormKeys>(validationKey: FormKeys.Key1, validators: [
+                ShouldNotBeEmptyValidator(
+                  buildErrorMessage: (validator, field) => "should not be empty (Key 1)",
+                ),
+                ShouldNotBeEmptyOrWhiteSpaceValidator(
+                  buildErrorMessage: (validator, field) => "should not be empty or whitespace (Key 1)",
+                )
+              ]),
             ),
             CustomTextField(
               key: ValueKey("Field2"),
-              validationCapability: TextValidationCapability<FormKeys>(
-                  validationKey: FormKeys.Key2,
-                  validators: [
-                    ShouldNotBeEmptyValidator(
-                      buildErrorMessage: (validator, field) =>
-                          "should not be empty (Key 2)",
-                    )
-                  ]),
+              validationCapability: TextValidationCapability<FormKeys>(validationKey: FormKeys.Key2, validators: [
+                ShouldNotBeEmptyValidator(
+                  buildErrorMessage: (validator, field) => "should not be empty (Key 2)",
+                )
+              ]),
             ),
             CustomValidationMessages<FormKeys>(),
             ElevatedButton(
@@ -91,7 +83,7 @@ enum FormKeys { Key1, Key2 }
 
 class CustomTextField extends StatefulWidget {
   final TextValidationCapability validationCapability;
-  CustomTextField({Key key, this.validationCapability}) : super(key: key);
+  CustomTextField({Key? key, required this.validationCapability}) : super(key: key);
 
   @override
   _CustomTextFieldState createState() => _CustomTextFieldState();
@@ -102,8 +94,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   void initState() {
     super.initState();
-    widget.validationCapability
-        .init(context, controller: _textEditingController);
+    widget.validationCapability.initWithTextEditingController(context, controller: _textEditingController);
   }
 
   @override
@@ -115,14 +106,14 @@ class _CustomTextFieldState extends State<CustomTextField> {
 }
 
 class CustomValidationMessages<FormKeyType> extends StatefulWidget {
-  final List<FormKeyType> filterByKeys;
-  final ValidatorTypeFilter filterByValidatorType;
+  final List<FormKeyType>? filterByKeys;
+  final ValidatorTypeFilter? filterByValidatorType;
   final ValidityFilter filterByValidity;
   final bool ignoreIfFormIsEnabled;
   final bool onlyFirstValidationResult;
 
   const CustomValidationMessages(
-      {Key key,
+      {Key? key,
       this.filterByKeys,
       this.filterByValidatorType,
       this.ignoreIfFormIsEnabled = false,
@@ -130,26 +121,21 @@ class CustomValidationMessages<FormKeyType> extends StatefulWidget {
       this.onlyFirstValidationResult = false})
       : super(key: key);
   @override
-  CustomValidationMessagesState createState() =>
-      CustomValidationMessagesState<FormKeyType>();
+  CustomValidationMessagesState createState() => CustomValidationMessagesState<FormKeyType>();
 }
 
-class CustomValidationMessagesState<FormKeyType>
-    extends State<CustomValidationMessages> {
+class CustomValidationMessagesState<FormKeyType> extends State<CustomValidationMessages> {
   @override
   Widget build(BuildContext context) {
     return ValidationResults<FormKeyType>(
-      filterByKeys: widget.filterByKeys as List<FormKeyType>,
-      filterByValidatorType: widget.filterByValidatorType,
+      filterByKeys: widget.filterByKeys as List<FormKeyType>?,
+      filterByValidatorType: widget.filterByValidatorType ?? ValidatorTypeFilter.FieldValidator,
       filterByValidity: widget.filterByValidity,
       ignoreIfFormIsEnabled: widget.ignoreIfFormIsEnabled,
       onlyFirstValidationResult: widget.onlyFirstValidationResult,
       validationResultsBuilder: (validationMessages) {
         return Column(
-          children: [
-            for (ValidationResult result in validationMessages)
-              Text(result.message)
-          ],
+          children: [for (ValidationResult result in validationMessages) Text(result.message)],
         );
       },
     );
