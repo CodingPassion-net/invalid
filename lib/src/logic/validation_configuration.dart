@@ -1,17 +1,15 @@
-// @dart=2.9
-
 import 'package:invalid/invalid.dart';
 
 class ValidationConfiguration<DefaultValidationMessagesType extends DefaultValidationMessagesLocalization> {
   final List<TypeConverter> _typeConverter;
   final DefaultValidationMessagesType defaultValidationMessagesLocalization;
 
-  static ValidationConfiguration<DefaultValidationMessagesLocalization> _instance;
+  static late ValidationConfiguration<DefaultValidationMessagesLocalization> _instance;
 
   ValidationConfiguration._(this.defaultValidationMessagesLocalization, this._typeConverter);
 
   factory ValidationConfiguration.initialize(
-      {DefaultValidationMessagesType defaultValidationMessages, List<TypeConverter> typeConverter = const []}) {
+      {DefaultValidationMessagesType? defaultValidationMessages, List<TypeConverter> typeConverter = const []}) {
     return _instance = ValidationConfiguration<DefaultValidationMessagesType>._(
         defaultValidationMessages ?? EmptyDefaultValidationMessages() as DefaultValidationMessagesType,
         [StringDoubleTypeConverter(), IntDoubleTypeConverter(), ...typeConverter]);
@@ -25,7 +23,6 @@ class ValidationConfiguration<DefaultValidationMessagesType extends DefaultValid
   }
 
   factory ValidationConfiguration.instance() {
-    assert(_instance != null, "ValidationConfiguration is not initialized!");
     return _instance as ValidationConfiguration<DefaultValidationMessagesType>;
   }
 }

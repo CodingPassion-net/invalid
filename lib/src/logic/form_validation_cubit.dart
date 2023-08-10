@@ -1,8 +1,6 @@
-// @dart=2.9
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
+import 'package:collection/collection.dart';
 import 'validators.dart';
 
 class FormValidationCubit<KeyType> extends Cubit<FormValidationState<KeyType>> {
@@ -45,8 +43,8 @@ class FormValidationState<KeyType> extends Equatable {
   Iterable<ValidationResult<KeyType>> get _fieldValidationResults => fields.expand((field) => field.validationResults);
 
   FormValidationState(
-      {Iterable<Field<KeyType>> fields,
-      Iterable<FormValidator<KeyType, FormValidator>> formValidators,
+      {Iterable<Field<KeyType>>? fields,
+      Iterable<FormValidator<KeyType, FormValidator>>? formValidators,
       this.enabled = false})
       : fields = (fields ?? []).distinctBy((field) => field.key).toList(),
         formValidators = formValidators ?? [];
@@ -69,9 +67,9 @@ class FormValidationState<KeyType> extends Equatable {
   }
 
   FormValidationState<KeyType> copyWith({
-    Iterable<Field<KeyType>> fields,
-    Iterable<FormValidator<KeyType, FormValidator>> formValidators,
-    bool enabled,
+    Iterable<Field<KeyType>>? fields,
+    Iterable<FormValidator<KeyType, FormValidator>>? formValidators,
+    bool? enabled,
   }) {
     return FormValidationState<KeyType>(
         fields: fields ?? this.fields,
@@ -95,10 +93,12 @@ class Field<KeyType> extends Equatable {
   Iterable<ValidationResult<KeyType>> get validationResults =>
       validators.map((validator) => validator.validate(this).copyWith(fieldKey: key)).toList();
 
-  Field(
-      {@required this.key, Iterable<FieldValidator<dynamic, KeyType, dynamic>> validators, this.value, this.fieldName})
-      : validators = validators ?? [],
-        assert(key != null);
+  Field({
+    required this.key,
+    Iterable<FieldValidator<dynamic, KeyType, dynamic>>? validators,
+    this.value,
+    this.fieldName = '',
+  }) : validators = validators ?? [];
 
   Field<KeyType> copyWith({
     dynamic value,
@@ -113,7 +113,7 @@ class Field<KeyType> extends Equatable {
   }
 
   @override
-  List<Object> get props => [value, key, validators, fieldName];
+  List<Object?> get props => [value, key, validators, fieldName];
 }
 
 extension IterableExtensions<T> on Iterable<T> {
@@ -124,8 +124,8 @@ extension IterableExtensions<T> on Iterable<T> {
 }
 
 extension FieldFinder<KeyType> on Iterable<Field<KeyType>> {
-  Field<KeyType> findByFieldKey(KeyType fieldKey) {
-    return singleWhere((field) => field.key == fieldKey, orElse: () => null);
+  Field<KeyType>? findByFieldKey(KeyType fieldKey) {
+    return singleWhereOrNull((field) => field.key == fieldKey);
   }
 
   Iterable<Field<KeyType>> findByFieldKeys(Iterable<KeyType> fieldKeys) {

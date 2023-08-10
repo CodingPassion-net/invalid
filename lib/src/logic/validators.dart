@@ -1,24 +1,20 @@
-// @dart=2.9
-
 import 'package:equatable/equatable.dart';
 import 'package:invalid/invalid.dart';
 import 'package:meta/meta.dart';
 
 @immutable
 class ValidationResult<KeyType> extends Equatable {
-  final KeyType formValidatorKey;
-  final KeyType validatorKey;
-  final KeyType fieldKey;
+  final KeyType? formValidatorKey;
+  final KeyType? validatorKey;
+  final KeyType? fieldKey;
   final bool isValid;
   final String message;
   final bool isFormValidationResult;
 
   ValidationResult(this.isValid, this.message, this.isFormValidationResult,
-      {this.fieldKey, this.formValidatorKey, this.validatorKey})
-      : assert(isValid != null),
-        assert(isFormValidationResult != null);
+      {this.fieldKey, this.formValidatorKey, this.validatorKey});
 
-  ValidationResult<KeyType> copyWith({KeyType fieldKey}) {
+  ValidationResult<KeyType> copyWith({KeyType? fieldKey}) {
     return ValidationResult(
       isValid,
       message,
@@ -33,16 +29,16 @@ class ValidationResult<KeyType> extends Equatable {
   bool get stringify => true;
 
   @override
-  List<Object> get props => [formValidatorKey, validatorKey, fieldKey, isValid, message, isFormValidationResult];
+  List<Object?> get props => [formValidatorKey, validatorKey, fieldKey, isValid, message, isFormValidationResult];
 }
 
 abstract class Validator<KeyType> extends Equatable {
-  final KeyType key;
+  final KeyType? key;
 
   Validator(this.key);
 
   @override
-  List<Object> get props => [key];
+  List<Object?> get props => [key];
 }
 
 @immutable
@@ -52,9 +48,9 @@ abstract class FieldValidator<TypeOfValidatedValue, KeyType,
 
   bool get allowNull => true;
 
-  FieldValidator(this.buildErrorMessage, KeyType key) : super(key);
+  FieldValidator(this.buildErrorMessage, KeyType? key) : super(key);
 
-  TypeOfValidatedValue parseValue(dynamic value) =>
+  TypeOfValidatedValue? parseValue(dynamic value) =>
       ValidationConfiguration.instance().getTypeConverter<TypeOfValidatedValue>(value.runtimeType).canConvert(value);
 
   ValidationResult<KeyType> validate(Field<KeyType> field) {
@@ -69,13 +65,13 @@ abstract class FieldValidator<TypeOfValidatedValue, KeyType,
   @protected
   bool isValid(TypeOfValidatedValue value) => true;
 
-  ValidationResult<KeyType> createValidationResult(TypeOfValidatedValue value, bool isValid, Field<KeyType> field) {
+  ValidationResult<KeyType> createValidationResult(TypeOfValidatedValue? value, bool isValid, Field<KeyType> field) {
     return ValidationResult<KeyType>(isValid, buildErrorMessage(this as TFieldValidator, field), false,
         validatorKey: key);
   }
 
   @override
-  List<Object> get props => [...super.props, allowNull];
+  List<Object?> get props => [...super.props, allowNull];
 }
 
 /// A [FormValidator] is a validator, that can span multiple fields.
@@ -84,7 +80,7 @@ abstract class FormValidator<KeyType, TFormValidator extends FormValidator<KeyTy
     extends Validator<KeyType> {
   final String Function(TFormValidator validator, Iterable<Field<KeyType>> fields) buildErrorMessage;
 
-  FormValidator(this.buildErrorMessage, {KeyType key}) : super(key);
+  FormValidator(this.buildErrorMessage, {KeyType? key}) : super(key);
 
   ValidationResult<KeyType> validate(Iterable<Field<KeyType>> fields) {
     return ValidationResult<KeyType>(isValid(fields), buildErrorMessage(this as TFormValidator, fields), true,
@@ -100,9 +96,9 @@ class ShouldBeEqualFormValidator<KeyType> extends FormValidator<KeyType, ShouldB
   final Iterable<KeyType> keysOfFieldsWhichShouldBeEqual;
 
   ShouldBeEqualFormValidator(
-      {@required this.keysOfFieldsWhichShouldBeEqual,
-      String Function(ShouldBeEqualFormValidator<KeyType> validator, Iterable<Field> fields) buildErrorMessage,
-      KeyType key})
+      {required this.keysOfFieldsWhichShouldBeEqual,
+      String Function(ShouldBeEqualFormValidator<KeyType> validator, Iterable<Field> fields)? buildErrorMessage,
+      KeyType? key})
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance().defaultValidationMessagesLocalization.shouldBeEqualValidationMessage,
@@ -118,7 +114,7 @@ class ShouldBeEqualFormValidator<KeyType> extends FormValidator<KeyType, ShouldB
   }
 
   @override
-  List<Object> get props => [...super.props, keysOfFieldsWhichShouldBeEqual];
+  List<Object?> get props => [...super.props, keysOfFieldsWhichShouldBeEqual];
 }
 
 class MultiFieldDateValidator<KeyType> extends FormValidator<KeyType, MultiFieldDateValidator<KeyType>> {
@@ -127,34 +123,33 @@ class MultiFieldDateValidator<KeyType> extends FormValidator<KeyType, MultiField
   final KeyType yearFieldKey;
 
   MultiFieldDateValidator(
-      {@required this.dayFieldKey,
-      @required this.monthFieldKey,
-      @required this.yearFieldKey,
-      String Function(MultiFieldDateValidator<KeyType> validator, Iterable<Field> fields) buildErrorMessage,
-      KeyType key})
-      : super(buildErrorMessage ?? (MultiFieldDateValidator<KeyType> _, __) => null, key: key);
+      {required this.dayFieldKey,
+      required this.monthFieldKey,
+      required this.yearFieldKey,
+      String Function(MultiFieldDateValidator<KeyType> validator, Iterable<Field> fields)? buildErrorMessage,
+      KeyType? key})
+      : super(buildErrorMessage ?? (MultiFieldDateValidator<KeyType?> _, __) => '', key: key);
 
   @override
   bool isValid(Iterable<Field<KeyType>> fields) {
-    String dayValue = fields.findByFieldKey(dayFieldKey)?.value as String;
-    String monthValue = fields.findByFieldKey(monthFieldKey)?.value as String;
-    String yearValue = fields.findByFieldKey(yearFieldKey)?.value as String;
+    final dayValue = fields.findByFieldKey(dayFieldKey)?.value as String?;
+    final monthValue = fields.findByFieldKey(monthFieldKey)?.value as String?;
+    final yearValue = fields.findByFieldKey(yearFieldKey)?.value as String?;
 
-    var dayInput = dayValue == null ? null : int.tryParse(dayValue);
-    var monthInput = monthValue == null ? null : int.tryParse(monthValue);
-    var yearInput = yearValue == null ? null : int.tryParse(yearValue);
+    var dayInput = int.tryParse(dayValue ?? '');
+    var monthInput = int.tryParse(monthValue ?? '');
+    var yearInput = int.tryParse(yearValue ?? '');
     if (monthInput == null || dayInput == null || yearInput == null) return false;
-    var date = isValidDate(dayInput, monthInput, yearInput);
-    return date != null;
+    return isValidDate(dayInput, monthInput, yearInput);
   }
 
-  DateTime isValidDate(int day, int month, int year) {
+  bool isValidDate(int day, int month, int year) {
     var dateTime = DateTime(year, month, day);
-    return dateTime.year == year && dateTime.month == month && dateTime.day == day ? dateTime : null;
+    return dateTime.year == year && dateTime.month == month && dateTime.day == day;
   }
 
   @override
-  List<Object> get props => [...super.props, dayFieldKey, monthFieldKey, yearFieldKey];
+  List<Object?> get props => [...super.props, dayFieldKey, monthFieldKey, yearFieldKey];
 }
 
 // Field Validators ----------------------------------------------
@@ -164,9 +159,9 @@ class ShouldNotBeNullValidator<TypeOfValidatedValue, KeyType>
   bool get allowNull => false;
 
   ShouldNotBeNullValidator(
-      {String Function(ShouldNotBeNullValidator<TypeOfValidatedValue, KeyType> buildErrorMessage, Field field)
+      {String Function(ShouldNotBeNullValidator<TypeOfValidatedValue, KeyType> buildErrorMessage, Field field)?
           buildErrorMessage,
-      KeyType key})
+      KeyType? key})
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
@@ -175,7 +170,7 @@ class ShouldNotBeNullValidator<TypeOfValidatedValue, KeyType>
             key);
 
   @override
-  TypeOfValidatedValue parseValue(dynamic value) {
+  TypeOfValidatedValue? parseValue(dynamic value) {
     try {
       return super.parseValue(value);
     } on UnsupportedError catch (e) {
@@ -185,12 +180,12 @@ class ShouldNotBeNullValidator<TypeOfValidatedValue, KeyType>
   }
 
   @override
-  List<Object> get props => [...super.props, allowNull];
+  List<Object?> get props => [...super.props, allowNull];
 }
 
 class ShouldNotBeEmptyValidator<KeyType> extends FieldValidator<String, KeyType, ShouldNotBeEmptyValidator<KeyType>> {
   ShouldNotBeEmptyValidator(
-      {String Function(ShouldNotBeEmptyValidator<KeyType> validator, Field field) buildErrorMessage, KeyType key})
+      {String Function(ShouldNotBeEmptyValidator<KeyType> validator, Field field)? buildErrorMessage, KeyType? key})
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
@@ -207,8 +202,8 @@ class ShouldNotBeEmptyValidator<KeyType> extends FieldValidator<String, KeyType,
 class ShouldNotBeEmptyOrWhiteSpaceValidator<KeyType>
     extends FieldValidator<String, KeyType, ShouldNotBeEmptyOrWhiteSpaceValidator<KeyType>> {
   ShouldNotBeEmptyOrWhiteSpaceValidator(
-      {String Function(ShouldNotBeEmptyOrWhiteSpaceValidator<KeyType> validator, Field field) buildErrorMessage,
-      KeyType key})
+      {String Function(ShouldNotBeEmptyOrWhiteSpaceValidator<KeyType> validator, Field field)? buildErrorMessage,
+      KeyType? key})
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
@@ -224,7 +219,7 @@ class ShouldNotBeEmptyOrWhiteSpaceValidator<KeyType>
 
 class ShouldBeTrueValidator<KeyType> extends FieldValidator<bool, KeyType, ShouldBeTrueValidator<KeyType>> {
   ShouldBeTrueValidator(
-      {String Function(ShouldBeTrueValidator<KeyType> validator, Field field) buildErrorMessage, KeyType key})
+      {String Function(ShouldBeTrueValidator<KeyType> validator, Field field)? buildErrorMessage, KeyType? key})
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance().defaultValidationMessagesLocalization.shouldBeTrueValidationMessage,
@@ -238,7 +233,7 @@ class ShouldBeTrueValidator<KeyType> extends FieldValidator<bool, KeyType, Shoul
 
 class ShouldBeFalseValidator<KeyType> extends FieldValidator<bool, KeyType, ShouldBeFalseValidator<KeyType>> {
   ShouldBeFalseValidator(
-      {String Function(ShouldBeFalseValidator<KeyType> validator, Field field) buildErrorMessage, KeyType key})
+      {String Function(ShouldBeFalseValidator<KeyType> validator, Field field)? buildErrorMessage, KeyType? key})
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance().defaultValidationMessagesLocalization.shouldBeFalseValidationMessage,
@@ -256,10 +251,10 @@ class ShouldInBetweenDatesValidator<KeyType>
   final DateTime min;
 
   ShouldInBetweenDatesValidator(
-      {@required this.min,
-      @required this.max,
-      String Function(ShouldInBetweenDatesValidator<KeyType> validator, Field field) buildErrorMessage,
-      KeyType key})
+      {required this.min,
+      required this.max,
+      String Function(ShouldInBetweenDatesValidator<KeyType> validator, Field field)? buildErrorMessage,
+      KeyType? key})
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
@@ -273,7 +268,7 @@ class ShouldInBetweenDatesValidator<KeyType>
   }
 
   @override
-  List<Object> get props => [...super.props, min, max];
+  List<Object?> get props => [...super.props, min, max];
 }
 
 class ShouldBeBiggerThanValidator<KeyType>
@@ -281,9 +276,9 @@ class ShouldBeBiggerThanValidator<KeyType>
   final double min;
 
   ShouldBeBiggerThanValidator({
-    @required this.min,
-    KeyType key,
-    String Function(ShouldBeBiggerThanValidator<KeyType> validator, Field field) buildErrorMessage,
+    required this.min,
+    KeyType? key,
+    String Function(ShouldBeBiggerThanValidator<KeyType> validator, Field field)? buildErrorMessage,
   }) : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
@@ -297,7 +292,7 @@ class ShouldBeBiggerThanValidator<KeyType>
   }
 
   @override
-  List<Object> get props => [...super.props, min];
+  List<Object?> get props => [...super.props, min];
 }
 
 class ShouldBeSmallerThenValidator<KeyType>
@@ -305,9 +300,9 @@ class ShouldBeSmallerThenValidator<KeyType>
   final double max;
 
   ShouldBeSmallerThenValidator(
-      {@required this.max,
-      String Function(ShouldBeSmallerThenValidator<KeyType> validator, Field field) buildErrorMessage,
-      KeyType key})
+      {required this.max,
+      String Function(ShouldBeSmallerThenValidator<KeyType> validator, Field field)? buildErrorMessage,
+      KeyType? key})
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
@@ -321,7 +316,7 @@ class ShouldBeSmallerThenValidator<KeyType>
   }
 
   @override
-  List<Object> get props => [...super.props, max];
+  List<Object?> get props => [...super.props, max];
 }
 
 class ShouldBeBiggerOrEqualThenValidator<KeyType>
@@ -329,9 +324,9 @@ class ShouldBeBiggerOrEqualThenValidator<KeyType>
   final double min;
 
   ShouldBeBiggerOrEqualThenValidator(
-      {@required this.min,
-      String Function(ShouldBeBiggerOrEqualThenValidator<KeyType> validator, Field field) buildErrorMessage,
-      KeyType key})
+      {required this.min,
+      String Function(ShouldBeBiggerOrEqualThenValidator<KeyType> validator, Field field)? buildErrorMessage,
+      KeyType? key})
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
@@ -345,7 +340,7 @@ class ShouldBeBiggerOrEqualThenValidator<KeyType>
   }
 
   @override
-  List<Object> get props => [...super.props, min];
+  List<Object?> get props => [...super.props, min];
 }
 
 class ShouldBeSmallerOrEqualThenValidator<KeyType>
@@ -353,9 +348,9 @@ class ShouldBeSmallerOrEqualThenValidator<KeyType>
   final double max;
 
   ShouldBeSmallerOrEqualThenValidator(
-      {@required this.max,
-      String Function(ShouldBeSmallerOrEqualThenValidator<KeyType> validator, Field field) buildErrorMessage,
-      KeyType key})
+      {required this.max,
+      String Function(ShouldBeSmallerOrEqualThenValidator<KeyType> validator, Field field)? buildErrorMessage,
+      KeyType? key})
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
@@ -369,7 +364,7 @@ class ShouldBeSmallerOrEqualThenValidator<KeyType>
   }
 
   @override
-  List<Object> get props => [...super.props, max];
+  List<Object?> get props => [...super.props, max];
 }
 
 class ShouldBeBetweenValidator<KeyType> extends FieldValidator<double, KeyType, ShouldBeBetweenValidator<KeyType>> {
@@ -377,10 +372,10 @@ class ShouldBeBetweenValidator<KeyType> extends FieldValidator<double, KeyType, 
   final double min;
 
   ShouldBeBetweenValidator(
-      {@required this.min,
-      @required this.max,
-      String Function(ShouldBeBetweenValidator<KeyType> validator, Field field) buildErrorMessage,
-      KeyType key})
+      {required this.min,
+      required this.max,
+      String Function(ShouldBeBetweenValidator<KeyType> validator, Field field)? buildErrorMessage,
+      KeyType? key})
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
@@ -394,7 +389,7 @@ class ShouldBeBetweenValidator<KeyType> extends FieldValidator<double, KeyType, 
   }
 
   @override
-  List<Object> get props => [...super.props, min, max];
+  List<Object?> get props => [...super.props, min, max];
 }
 
 class ShouldBeBetweenOrEqualValidator<KeyType>
@@ -403,10 +398,10 @@ class ShouldBeBetweenOrEqualValidator<KeyType>
   final double min;
 
   ShouldBeBetweenOrEqualValidator(
-      {@required this.min,
-      @required this.max,
-      String Function(ShouldBeBetweenOrEqualValidator<KeyType> validator, Field field) buildErrorMessage,
-      KeyType key})
+      {required this.min,
+      required this.max,
+      String Function(ShouldBeBetweenOrEqualValidator<KeyType> validator, Field field)? buildErrorMessage,
+      KeyType? key})
       : super(
             buildErrorMessage ??
                 ValidationConfiguration.instance()
@@ -420,5 +415,5 @@ class ShouldBeBetweenOrEqualValidator<KeyType>
   }
 
   @override
-  List<Object> get props => [...super.props, min, max];
+  List<Object?> get props => [...super.props, min, max];
 }
