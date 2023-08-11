@@ -8,12 +8,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  bloc: ^8.1.1
+  bloc: ^7.1.0
   equatable: ^2.0.5
   intl: ^0.17.0
-  flutter_bloc: ^8.1.1
+  flutter_bloc: ^7.2.0
 
 dev_dependencies:
-  bloc_test: ^9.1.1
+  bloc_test: ^8.1.0
   flutter_test:
     sdk: flutter
