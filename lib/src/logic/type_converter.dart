@@ -1,5 +1,3 @@
-// @dart=2.9
-
 import 'package:intl/intl.dart';
 
 /// When for example the value in a field is of type int, but the validator expects a string,
@@ -10,12 +8,12 @@ abstract class TypeConverter<InputType, OutputType> {
 
   Type get outputType => OutputType;
 
-  OutputType canConvert(InputType inputType);
+  OutputType? canConvert(InputType inputType);
 }
 
 class StringDoubleTypeConverter extends TypeConverter<String, double> {
   @override
-  double canConvert(String inputType) {
+  double? canConvert(String inputType) {
     double convertedDouble;
     try {
       convertedDouble = NumberFormat().parse(inputType) as double;
@@ -30,7 +28,7 @@ class StringDoubleTypeConverter extends TypeConverter<String, double> {
 
 class StringIntTypeConverter extends TypeConverter<String, int> {
   @override
-  int canConvert(String inputType) {
+  int? canConvert(String inputType) {
     return int.tryParse(inputType);
   }
 }

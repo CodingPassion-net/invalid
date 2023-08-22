@@ -1,11 +1,9 @@
-// @dart=2.9
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:invalid/invalid.dart';
 
 class ValidationResults<FormKeyType> extends StatelessWidget {
-  final List<FormKeyType> filterByKeys;
+  final List<FormKeyType>? filterByKeys;
   final ValidatorTypeFilter filterByValidatorType;
   final EdgeInsets padding;
   final ValidityFilter filterByValidity;
@@ -13,24 +11,20 @@ class ValidationResults<FormKeyType> extends StatelessWidget {
   final bool onlyFirstValidationResult;
   final Widget Function(List<ValidationResult> validationResults) validationResultsBuilder;
 
-  /// Placeholder widget when the validation results are empty. Defaults to empty [Container]
+  /// Placeholder widget when the validation results are empty. Defaults to [SizedBox.shrink]
   final Widget validationResultPlaceholder;
 
-  const ValidationResults(
-      {this.filterByKeys,
-      @required this.validationResultsBuilder,
-      Key key,
-      EdgeInsets padding,
-      this.filterByValidatorType,
-      ValidityFilter filterByValidity,
-      bool ignoreIfFormIsEnabled,
-      bool onlyFirstValidationResult,
-      this.validationResultPlaceholder})
-      : ignoreIfFormIsEnabled = ignoreIfFormIsEnabled ?? false,
-        filterByValidity = filterByValidity ?? ValidityFilter.OnlyInvalid,
-        padding = padding ?? EdgeInsets.zero,
-        onlyFirstValidationResult = onlyFirstValidationResult ?? false,
-        super(key: key);
+  const ValidationResults({
+    this.filterByKeys,
+    required this.validationResultsBuilder,
+    Key? key,
+    this.filterByValidatorType = ValidatorTypeFilter.FieldValidator,
+    this.validationResultPlaceholder = const SizedBox.shrink(),
+    this.padding = EdgeInsets.zero,
+    this.filterByValidity = ValidityFilter.OnlyInvalid,
+    this.ignoreIfFormIsEnabled = false,
+    this.onlyFirstValidationResult = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +42,7 @@ class ValidationResults<FormKeyType> extends StatelessWidget {
         default:
       }
 
-      if (filterByKeys != null) filteredValidationResults = filteredValidationResults.filterByKeys(filterByKeys);
+      if (filterByKeys != null) filteredValidationResults = filteredValidationResults.filterByKeys(filterByKeys!);
 
       switch (filterByValidatorType) {
         case ValidatorTypeFilter.FieldValidator:
@@ -62,7 +56,7 @@ class ValidationResults<FormKeyType> extends StatelessWidget {
       if (onlyFirstValidationResult) filteredValidationResults = filteredValidationResults.take(1);
 
       return filteredValidationResults.isEmpty
-          ? validationResultPlaceholder ?? Container()
+          ? validationResultPlaceholder
           : Padding(
               padding: padding,
               child: validationResultsBuilder(

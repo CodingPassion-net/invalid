@@ -1,5 +1,3 @@
-// @dart=2.9
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:invalid/invalid.dart';
@@ -16,13 +14,13 @@ void main() {
   });
 
   Future<void> setUpValidationForm(WidgetTester tester,
-      {Iterable<FormValidator<FormKeys, FormValidator>> formValidators,
-      Function(FormValidationState<FormKeys>) onFormTurnedValid,
-      Function(FormValidationState<FormKeys>) onFormTurnedInValid,
-      Function(FormValidationState<FormKeys>) onUpdate,
-      Function(FormValidationCubit<FormKeys>) onFormValidationCubitCreated,
+      {Iterable<FormValidator<FormKeys, FormValidator>> formValidators = const [],
+      Function(FormValidationState<FormKeys>)? onFormTurnedValid,
+      Function(FormValidationState<FormKeys>)? onFormTurnedInValid,
+      Function(FormValidationState<FormKeys>)? onUpdate,
+      Function(FormValidationCubit<FormKeys>)? onFormValidationCubitCreated,
       bool enabled = false,
-      Widget validationMessages}) async {
+      Widget? validationMessages}) async {
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
         body: ValidationForm<FormKeys>(
@@ -280,7 +278,7 @@ enum FormKeys { Key1, Key2 }
 
 class CustomTextField extends StatefulWidget {
   final TextValidationCapability validationCapability;
-  CustomTextField({Key key, this.validationCapability}) : super(key: key);
+  CustomTextField({Key? key, required this.validationCapability}) : super(key: key);
 
   @override
   _CustomTextFieldState createState() => _CustomTextFieldState();
@@ -291,7 +289,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   void initState() {
     super.initState();
-    widget.validationCapability.init(context, controller: _textEditingController);
+
+    widget.validationCapability.initWithTextEditingController(context, controller: _textEditingController);
   }
 
   @override
@@ -303,15 +302,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
 }
 
 class CustomValidationMessages<FormKeyType> extends StatefulWidget {
-  final List<FormKeyType> filterByKeys;
-  final ValidatorTypeFilter filterByValidatorType;
+  final List<FormKeyType>? filterByKeys;
+  final ValidatorTypeFilter? filterByValidatorType;
   final ValidityFilter filterByValidity;
   final bool ignoreIfFormIsEnabled;
   final bool onlyFirstValidationResult;
-  final Widget validationResultPlaceholder;
+  final Widget? validationResultPlaceholder;
 
   const CustomValidationMessages(
-      {Key key,
+      {Key? key,
       this.filterByKeys,
       this.filterByValidatorType,
       this.ignoreIfFormIsEnabled = false,
@@ -327,12 +326,12 @@ class CustomValidationMessagesState<FormKeyType> extends State<CustomValidationM
   @override
   Widget build(BuildContext context) {
     return ValidationResults<FormKeyType>(
-      filterByKeys: widget.filterByKeys as List<FormKeyType>,
-      filterByValidatorType: widget.filterByValidatorType,
+      filterByKeys: widget.filterByKeys as List<FormKeyType>?,
+      filterByValidatorType: widget.filterByValidatorType ?? ValidatorTypeFilter.FieldValidator,
       filterByValidity: widget.filterByValidity,
       ignoreIfFormIsEnabled: widget.ignoreIfFormIsEnabled,
       onlyFirstValidationResult: widget.onlyFirstValidationResult,
-      validationResultPlaceholder: widget.validationResultPlaceholder,
+      validationResultPlaceholder: widget.validationResultPlaceholder ?? SizedBox.shrink(),
       validationResultsBuilder: (validationMessages) {
         return Column(
           children: [for (ValidationResult result in validationMessages) Text(result.message)],
