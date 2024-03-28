@@ -14,9 +14,11 @@ abstract class TypeConverter<InputType, OutputType> {
 class StringDoubleTypeConverter extends TypeConverter<String, double> {
   @override
   double? canConvert(String inputType) {
-    double convertedDouble;
+    double? convertedDouble;
     try {
+      if(inputType.isNotEmpty){
       convertedDouble = NumberFormat().parse(inputType) as double;
+      }
     } on FormatException catch (_) {
       return null;
     } on TypeError catch (_) {
