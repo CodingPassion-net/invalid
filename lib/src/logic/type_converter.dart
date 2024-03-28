@@ -16,7 +16,9 @@ class StringDoubleTypeConverter extends TypeConverter<String, double> {
   double? canConvert(String inputType) {
     double convertedDouble;
     try {
+      if(inputType.isNotEmpty){
       convertedDouble = NumberFormat().parse(inputType) as double;
+      }
     } on FormatException catch (_) {
       return null;
     } on TypeError catch (_) {
